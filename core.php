@@ -10,6 +10,7 @@ class Constants
 {
     public $data_filename = 'link_data.txt';
     public $google_analytic_id = 'G-62GTDQF33N';
+    public $url_hosting = 'faed.mju.ac.th/dev/link/?l=';
 }
 
 class CommonFnc extends Constants
@@ -274,6 +275,19 @@ class files extends CommonFnc
         }
     }
 
+    public function fwrite_append_data($data, $data_file = null)
+    {
+        if ($data) {
+            if (is_null($data_file)) {
+                $data_file = $this->data_filename;
+            }
+            $file = fopen($data_file, 'a+') or die('Unable to open file!');
+            // echo $data;
+            fwrite($file, $data);
+            fclose($file);
+        }
+    }
+
     public function chk_duplicate($sample_data)
     {
     }
@@ -306,7 +320,7 @@ class files extends CommonFnc
         if (!is_null($str_data)) {
             $data_array = json_decode($str_data, true, JSON_UNESCAPED_UNICODE);
             foreach ($data_array as $f_data) {
-                if ($f_data["code"] == $code) {
+                if (isset($f_data["code"]) && $f_data["code"] == $code) {
                     $this->gen_code();
                 } else {
                     return $code;
