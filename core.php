@@ -250,8 +250,10 @@ class files extends CommonFnc
     {
         if (is_null($data_file)) {
             $data_file = $this->data_filename;
+        } else if (!stripos($data_file,".txt")) {
+            $data_file .= ".txt";
         }
-        $file = fopen($data_file, "r") or die("Unable to open file!");
+        $file = fopen($data_file, "a+") or die("Unable to open file!");
         if (filesize($data_file) > 0) {
             $data = fread($file, filesize($data_file));
             fclose($file);
@@ -267,6 +269,8 @@ class files extends CommonFnc
         if ($data) {
             if (is_null($data_file)) {
                 $data_file = $this->data_filename;
+            } else if (!stripos($data_file,".txt")) {
+                $data_file .= ".txt";
             }
             $file = fopen($data_file, 'w') or die('Unable to open file!');
             // echo $data;
@@ -280,6 +284,8 @@ class files extends CommonFnc
         if ($data) {
             if (is_null($data_file)) {
                 $data_file = $this->data_filename;
+            } else if (!stripos($data_file,".txt")) {
+                $data_file .= ".txt";
             }
             $file = fopen($data_file, 'a+') or die('Unable to open file!');
             // echo $data;
@@ -337,4 +343,158 @@ class files extends CommonFnc
 
 class App_Object extends files
 {
+}
+
+class MJU_API extends CommonFnc
+{
+
+    public function get_api_info($title = "", $api_url, $print_r = false)
+    {
+        $array_data = $this->GetAPI_array($api_url);
+        echo "<h3 style='color:#1f65cf'>API Information: $title</h3>";
+        echo "<h4 style='color:#cf1f7a'>#row: " . $this->get_row_count($array_data) . "</br>";
+        echo "#column: " . $this->get_col_count($array_data) . "</br>";
+        echo "@column name: <br><span style='color:#741fcf; font-size:0.8em'>";
+        $this->get_col_name($array_data, true);
+        echo "</span></h4><hr>";
+        if ($print_r) {
+            print_r($array_data);
+            echo "<hr>";
+        }
+    }
+
+    public function get_row_count($array, $print_r = false)
+    {
+        return count($array);
+    }
+
+    public function get_col_count($array, $print_r = false)
+    {
+        return count($array[0]);
+    }
+
+    public function get_col_name($array, $print_r = false)
+    {
+        if ($print_r) {
+            print_r(array_keys($array[0]));
+        }
+        return array_keys($array[0]);
+    }
+
+    public function gen_array_filter($array, $key, $value)
+    {
+        $result = array();
+        foreach ($array as $k => $val) {
+            if ($val[$key] == $value) {
+                array_push($result, $array[$k]);
+            }
+        }
+        return $result;
+    }
+
+    public function get_array_filters($array, $key1, $value1, $key2 = null, $value2 = null, $key3 = null, $value3 = null, $key4 = null, $value4 = null, $key5 = null, $value5 = null)
+    {
+        $result = $array;
+        $this->debug_console("get_array_filter2 started");
+
+        if ($key5 && $value5) {
+            $result = $this->gen_array_filter($result, $key5, $value5);
+            $this->debug_console("gen_array_filter condition #5 completed");
+        }
+        if ($key4 && $value4) {
+            $result = $this->gen_array_filter($result, $key4, $value4);
+            $this->debug_console("gen_array_filter condition #4 completed");
+        }
+        if ($key3 && $value3) {
+            $result = $this->gen_array_filter($result, $key3, $value3);
+            $this->debug_console("gen_array_filter condition #3 completed");
+        }
+        if ($key2 && $value2) {
+            $result = $this->gen_array_filter($result, $key2, $value2);
+            $this->debug_console("gen_array_filter condition #2 completed");
+        }
+        if ($key1 && $value1) {
+            $result = $this->gen_array_filter($result, $key1, $value1);
+            $this->debug_console("gen_array_filter condition #1 completed");
+        }
+
+        if (count($result)) {
+            $this->debug_console("#row of result : " . count($result));
+            return $result;
+        } else {
+            return null;
+        }
+    }
+
+    public function get_row($array_data, $num_row, $print_r = false)
+    {
+        if (isset($array_data) && isset($num_row)) {
+            return $array_data[$num_row];
+        } else {
+            return null;
+        }
+    }
+
+    public function get_col($array_data, $num_row, $col_name, $print_r = false)
+    {
+        if (isset($array_data) && isset($num_row) && isset($col_name)) {
+            if ($print_r) {
+                print_r($array_data[$num_row][$col_name]);
+            }
+            return $array_data[$num_row][$col_name];
+        } else {
+            return null;
+        }
+    }
+
+    public function get_last_id($tbl = "activity", $col = "act_id")
+    {
+        $sql = "select " . $col . " from " . $tbl;
+        $sql .= " order by " . $col . " Desc Limit 1";
+        // return $this->get_db_col($sql);
+        $database = new database();
+        return $database->get_db_col($sql);
+    }
+
+    function arraysearch_rownum($key, $value, $array)
+    {
+        foreach ($array as $k => $val) {
+            if ($val[$key] == $value) {
+                return $k;
+            }
+        }
+        return null;
+    }
+
+    // not Supported for SSL
+    /*
+    Function GetAPI_array($API_URL) {
+        $data = file_get_contents($API_URL); // put the contents of the file into a variable            
+        $array_data = json_decode($data, true);
+
+        return $array_data;
+    }
+    */
+
+    // update for SSL
+    function GetAPI_array($API_URL)
+    {
+        $arrContextOptions = array(
+            "ssl" => array(
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ),
+        );
+        $data = file_get_contents($API_URL, false, stream_context_create($arrContextOptions)); // put the contents of the file into a variable                   
+        $array_data = json_decode($data, true);
+
+        return $array_data;
+    }
+
+    function GetAPI_object($API_URL)
+    {
+        $data = file_get_contents($API_URL); // put the contents of the file into a variable    
+        $obj_data = json_decode($data); // decode the JSON to obj        
+        return $obj_data;
+    }
 }
