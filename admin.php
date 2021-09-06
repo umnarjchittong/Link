@@ -49,12 +49,13 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 
     <div class="container col-12 col-md-12 col-lg-6 mt-3">
         <div class="row">
-            <div class="col">
-                <h1 class="text-primary">FAED's Short Link</h1>
+            <div class="col mt-2">
+                <h1 class="" style="color: var(--bs-primary);">FAED's Short Link</h1>
             </div>
             <div class="col">
                 <div class="float-end">
-                    <a href="https://www.the-qrcode-generator.com/" target="_blank" class="col m-2 btn btn-success text-white">สร้าง QR</a>
+                <a href="https://fb.com/umnarj" target="_blank" class="col m-2 btn btn-sm btn-primary text-white">สอบถาม-แนะนำ</a>
+                    <a href="https://www.the-qrcode-generator.com/" target="_blank" class="col m-2 btn btn-sm btn-success text-white">สร้าง QR</a>
                     <a href="signout.php" target="_top" class="col m-2 btn btn-secondary">Sign-Out</a>
                 </div>
             </div>

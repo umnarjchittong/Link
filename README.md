@@ -1,5 +1,14 @@
 # FAED's Link : ระบบการจัดการลิงค์อย่างย่อ ของคณะสถาปัตย์ฯ
 ---
+##  การใช้งาน
+- เข้าระบบ https://faed.mju.ac.th/link
+- ทำการ sign-in ด้วย username และ password ของท่าน
+- ระบุลิงค์ที่ต้องการเชื่อมต่อ่ในช่อง URL/Link กดปุ่ม Create Link
+- จะได้ลิงค์อย่างสั้น สามารถนำไปสร้างด้วยโปรแกรม QR Code Generator ได้ทันที
+- หากมีข้อสงสัย หรือคำแนะนำเพื่อพัฒนา fb.com/umnarj
+
+
+# Version history
 
 ## version 0.1
 - เรียกใช้งานผ่าน web-browser ได้
@@ -30,5 +39,6 @@
 
 ---
 
-deverlop since Aug, 2021 by umnarj chittong
-for Arch@MJU
+# Contacts
+
+deverlop since Aug, 2021 by umnarj@mju.ac.th for Arch@MJU
