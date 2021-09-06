@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bootstrap Site</title>
+    <title>FAED's Short Link</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link href="style.css" rel="stylesheet">
@@ -12,9 +12,9 @@
 
 <body>
 
-    <div class="container col-4 p-4">
-        <h1>Arch@Maejo </h1>
-        <h3>Short URL Generator.</h3>
+    <div class="container col-12 col-md-8 p-4">        
+        <h1 class="text-success">FAED's Short Link</h1>
+        <h3 class="text-mute">Arch@Maejo </h3>
         <hr class="my-4">
         <?php
         if (isset($_GET["l"])) {
@@ -23,6 +23,7 @@
 
             $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
             if (is_array($data)) {
+                print_r($data);
                 foreach ($data as $d) {
                     if ($_GET["l"] == $d["code"] && $d["status"] == "enable") {
                         echo '<meta http-equiv="refresh" content="0;url=' . $d["url"] . '">';
@@ -31,11 +32,12 @@
                 }
                 $_SESSION["link_info"] = $data;
             } else {
-                echo '<div class="alert alert-danger h3">!! Wrong Link Code 1.</div>';
+                echo '<div class="alert alert-danger h3">!! รหัสลิงค์ไม่ถูกต้อง1.</div>';
             }
-            echo '<div class="alert alert-danger h3">!! Wrong Link Code 2.</div>';
+            echo '<div class="alert alert-danger h3">!! รหัสลิงก์ไม่ถูกต้อง.</div>';
         } else {
-            echo '<div class="alert alert-danger h3">!! Noting Code.</div>';
+            echo '<meta http-equiv="refresh" content="0.5; URL=sign.php">';
+            echo '<div class="alert alert-danger h3">!! ไม่พบรหัสลิงค์.</div>';
         }
         ?>
 

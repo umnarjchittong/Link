@@ -9,7 +9,8 @@ require_once('core.php');
 require_once('plugins/nusoap.php');
 
 // * Setup the initial config
-$WebToken = "940297e31f2343d793fb5867913f083d";
+// $WebToken = "940297e31f2343d793fb5867913f083d";
+$WebToken = "f454b13918d14f0da2e6649fea160663";
 $AuthPath = "https://passport.mju.ac.th?W=" . $WebToken;
 $SignInSuccess_URL = "admin.php";
 $SignInFailure_URL = "signout.php";
@@ -79,9 +80,9 @@ if (empty($_REQUEST["T"])) {
         // echo "<hr>";
         // echo "<a href='../admin/index.php'>Go Admin</a>";
 
-        if (isset($auth_lv) && $auth_lv > 0) {
+        if (isset($auth_lv) && $auth_lv > 0 && $_SESSION["admin"]) {
             echo "you have authentication level";
-            // echo '<meta http-equiv="refresh" content="0;url=https://faed.mju.ac.th/ddm/admin/index.php">';
+            echo '<meta http-equiv="refresh" content="0;url=admin.php">';
         } else {
             echo "you have no authorize";
             // echo '<meta http-equiv="refresh" content="0;url=https://faed.mju.ac.th/ddm/e401.php?err=ท่านไม่มีสิทธิ์ใช้ระบบนี้">';
