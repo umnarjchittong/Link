@@ -451,7 +451,7 @@ class MJU_API extends CommonFnc
         $sql = "select " . $col . " from " . $tbl;
         $sql .= " order by " . $col . " Desc Limit 1";
         // return $this->get_db_col($sql);
-        $database = new database();
+        $database = new $this->database();
         return $database->get_db_col($sql);
     }
 
