@@ -38,9 +38,11 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 </head>
 
 <body>
+    <?php if ($_SESSION["admin"]["auth_lv"] >= 9) { ?>
     <div class="container-fluid alert alert-info text-center" style="font-size: 0.9rem; font-weight:300">
         <?php print_r($_SESSION["admin"]); ?>
     </div>
+    <?php } ?>
 
     <div class="container col-12 col-md-12 col-lg-6 mt-3">
         <div class="row">
@@ -233,15 +235,6 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             echo '<meta http-equiv="refresh" content="1;url=admin.php?a=fread">';
         }
 
-        $str="umnarj";
-        $k = ".txt";
-        echo "strpos: ";
-        // echo stripos($str,$k);
-        if (!stripos($str,$k)) {
-echo "1";
-        } else {
-            echo "2";
-        }
 
         ?>
         <!-- <hr class="mt-3 float-none">
