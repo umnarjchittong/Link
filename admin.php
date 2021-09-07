@@ -54,7 +54,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             </div>
             <div class="col">
                 <div class="float-end">
-                <a href="https://fb.com/umnarj" target="_blank" class="col m-2 btn btn-sm btn-primary text-white">สอบถาม-แนะนำ</a>
+                    <a href="https://m.me/umnarj" target="_blank" class="col m-2 btn btn-sm btn-primary text-white">สอบถาม-แนะนำ</a>
                     <a href="https://www.the-qrcode-generator.com/" target="_blank" class="col m-2 btn btn-sm btn-success text-white">สร้าง QR</a>
                     <a href="signout.php" target="_top" class="col m-2 btn btn-secondary">Sign-Out</a>
                 </div>
@@ -64,7 +64,24 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 
 
         <?php
-        if ($_SESSION["admin"]) {
+        if (isset($_GET["a"]) && $_GET["a"] == "edit" && isset($_GET["c"]) && $_SESSION["admin"]) {
+            $data = $fnc->fread_search($_GET["c"]);
+            // print_r($data);
+        ?>
+            <form action="?a=update" method="POST">
+                <div class="mb-3">
+                    <label for="url" class="form-label">URL/Link</label>
+                    <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required value="<?= $data["url"]; ?>">
+                    <div id="urlHelp" class="form-text">* URL or link example: https://arch.mju.ac.th</div>
+                </div>
+                <input type="hidden" name="fst" value="update">
+                <input type="hidden" name="code" value="<?= $_GET["c"] ?>">
+                <button type="submit" class="btn btn-info">Update Link</button>
+                <a href="admin.php" target="_top" class="btn btn-warning">Cancel</a>
+                <a href="?a=delete&c=<?= $_GET["c"] ?>" target="_top" class="btn btn-danger float-end">DEL</a>
+            </form>
+        <?php
+        } else if ($_SESSION["admin"]) {
         ?>
             <form action="?a=createnew" method="POST">
                 <!-- <div class="mb-3">
@@ -74,23 +91,26 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             </div> -->
                 <div class="mb-3">
                     <label for="url" class="form-label">URL/Link</label>
-                    <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required value="https://arch.mju.ac.th">
+                    <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required value="">
                     <div id="urlHelp" class="form-text">* URL or link example: https://arch.mju.ac.th</div>
                 </div>
                 <input type="hidden" name="fst" value="createnew">
                 <button type="submit" class="btn btn-primary">Create Link</button>
-
-
             </form>
         <?php
         } else {
             echo '<a href="sign.php" target="_top" class="btn btn-danger">! Please Sign First</a>';
         }
+
         ?>
 
 
 
         <?php
+        if (isset($_GET["a"]) && $_GET["a"] == "update" && $_POST["fst"] == "update" && $_POST["url"]) {            
+            $fnc->fwrite_update($_POST["code"], "url", $_POST["url"]);
+            echo '<meta http-equiv="refresh" content="0.1;url=admin.php">';
+        }
 
         if (isset($_GET["a"]) && $_GET["a"] == "createnew" && $_POST["fst"] == "createnew") {
 
@@ -198,9 +218,10 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
                     // echo $i . '. ';
                     echo '<span class="ms-2 me-auto"><a href="' . $d["url"] . '" target="_blank" class="link-primary">' . $fnc->url_hosting . $d["code"] . '</a></span>';
                     // echo ' [by ' . $d["user"];
-                    echo '<span class="float-end"><a href="?a=delete&c=' . $d["code"] . '" target="_top" class="btn btn-danger">DEL</a></span>';
+                    // echo '<span class="float-end"><a href="?a=delete&c=' . $d["code"] . '" target="_top" class="btn btn-danger">DEL</a></span>';
+                    echo '<span class="float-end"><a href="?a=edit&c=' . $d["code"] . '" target="_top" class="btn btn-warning">EDIT</a></span>';
+                    // echo '<a href="?" data-link_id="ISBN564541" data-link_code="ABC0" data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-warning btn_edit">Launch modal</a>';
                     // echo '<span class="me-3 float-end" style="font-size: 0.8em;">[' . date("Y-m-d H:i:s น.", $d["time"]) . ']</span>';
-
                     echo '</li>';
                 } else {
                     // echo '<a href="' . $d["url"] . '" target="_blank" class="link-primary">' . $d["code"] . ' -' . $d["title"] . '</a>';
@@ -218,25 +239,26 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         // }
 
         if (isset($_GET["a"]) && $_GET["a"] == "delete" && isset($_GET["c"])) {
-            $data_array = array();
-            $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
-            if (is_array($data)) {
-                foreach ($data as $d) {
-                    if ($_GET["c"] == $d["code"]) {
-                        $d["status"] = "delete";
-                    } else {
-                    }
-                    array_push($data_array, $d);
-                }
-            }
-            // echo "data new : <br>";
-            // print_r($data_array);
-            $data = json_encode($data_array);
-            // echo "<br>json encode: " . $data;
+            // $data_array = array();
+            // $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
+            // if (is_array($data)) {
+            //     foreach ($data as $d) {
+            //         if ($_GET["c"] == $d["code"]) {
+            //             $d["status"] = "delete";
+            //         } else {
+            //         }
+            //         array_push($data_array, $d);
+            //     }
+            // }
+            // // echo "data new : <br>";
+            // // print_r($data_array);
+            // $data = json_encode($data_array);
+            // // echo "<br>json encode: " . $data;
 
-            $fnc->fwrite_data($data);
-            $_SESSION["link_info"] = NULL;
-            echo '<meta http-equiv="refresh" content="1;url=admin.php?a=fread">';
+            // $fnc->fwrite_data($data);
+            $fnc->fwrite_update($_GET["c"], "status", "delete");            
+            // $_SESSION["link_info"] = NULL;
+            echo '<meta http-equiv="refresh" content="3;url=admin.php">';
         }
 
 
@@ -263,19 +285,38 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             © 2021 Copyright Faculty of Architecture and Environmental Design, Maejo University<br>
         </div>
         <div class="text-center" style="font-weight:300;">
-            Deverloper : umnarj@mju.ac.th
+            Deverloper : umnarj@mju.ac.th | version: 0.5 Beta
         </div>
         <!-- Copyright -->
     </footer>
 
 
-
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="myModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>some content</p>
+                    <input type="text" name="link_code" id="link_code" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous">
     </script>
+
 </body>
 
 </html>

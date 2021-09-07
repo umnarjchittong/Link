@@ -249,7 +249,7 @@ class files extends CommonFnc
     {
         if (is_null($data_file)) {
             $data_file = $this->data_filename;
-        } else if (!stripos($data_file,".txt")) {
+        } else if (!stripos($data_file, ".txt")) {
             $data_file .= ".txt";
         }
         $file = fopen($data_file, "a+") or die("Unable to open file!");
@@ -268,7 +268,7 @@ class files extends CommonFnc
         if ($data) {
             if (is_null($data_file)) {
                 $data_file = $this->data_filename;
-            } else if (!stripos($data_file,".txt")) {
+            } else if (!stripos($data_file, ".txt")) {
                 $data_file .= ".txt";
             }
             $file = fopen($data_file, 'w') or die('Unable to open file!');
@@ -283,7 +283,7 @@ class files extends CommonFnc
         if ($data) {
             if (is_null($data_file)) {
                 $data_file = $this->data_filename;
-            } else if (!stripos($data_file,".txt")) {
+            } else if (!stripos($data_file, ".txt")) {
                 $data_file .= ".txt";
             }
             $file = fopen($data_file, 'a+') or die('Unable to open file!');
@@ -292,6 +292,47 @@ class files extends CommonFnc
             fclose($file);
         }
     }
+
+    public function fread_search($keycode, $data_file = null)
+    {
+        $data = json_decode($this->fread_data($data_file), true, JSON_UNESCAPED_UNICODE);
+        if (is_array($data)) {
+            foreach ($data as $d) {
+                if ($d["code"] == $keycode) {
+                    // echo "found...";
+                    return $d;
+                }
+            }
+        }
+    }
+
+    public function fwrite_update($keycode, $col_name = "url", $new_value, $data_file = null)
+    {        
+        if ($keycode && $new_value) {
+            $data_array = array();
+            if (is_null($data_file)) {
+                $data_file = $this->data_filename;
+            } else if (!stripos($data_file, ".txt")) {
+                $data_file .= ".txt";
+            }
+            $data = json_decode($this->fread_data($data_file), true, JSON_UNESCAPED_UNICODE);
+            if (is_array($data)) {
+                foreach ($data as $d) {
+                    if ($keycode == $d["code"]) {
+                        $d[$col_name] = $new_value;
+                    }
+                    array_push($data_array, $d);
+                }
+            }
+            $data = json_encode($data_array);
+            $file = fopen($data_file, 'w') or die('Unable to open file!');
+            // echo $data;
+            fwrite($file, $data);
+            fclose($file);
+        }
+    }
+
+    
 
     public function chk_duplicate($sample_data)
     {
