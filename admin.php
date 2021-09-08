@@ -41,11 +41,19 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 </head>
 
 <body>
-    <?php if ($_SESSION["admin"]["auth_lv"] >= 9) { ?>
+    <?php if ($_SESSION["admin"]["fistNameEn"] == "Umnarj") { ?>
         <div class="container-fluid alert alert-info text-center" style="font-size: 0.9rem; font-weight:300">
             <?php print_r($_SESSION["admin"]); ?>
+            <hr>
+            <?php
+            $stat = $fnc->get_link_stat();
+            echo "ทั้งหมด " . $stat["all"] . ", ใช้งาน " . $stat["enable"] . ", ยกเลิก " . $stat["delete"];
+            ?>
         </div>
     <?php } ?>
+    <div class="container-fluid alert alert-warning text-center mb-3" style="font-size: 0.9rem; font-weight:500">
+        เวอร์ชั่น <?= $fnc->system_version; ?> (ทดลองใช้ อยากให้ปรับเปลี่ยนอย่างไร กดปุ่ม สอบถาม-แนะนำ ได้เลยครับ)
+    </div>
 
     <div class="container col-12 col-md-12 col-lg-6 mt-3">
         <div class="row">
@@ -62,7 +70,13 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         </div>
         <hr class="mb-4">
 
-
+        <?php
+        if (isset($_GET["a"]) && $_GET["a"] == "view" && isset($_GET["c"])) {
+            echo '<div class="col-10 col-md-8 mx-auto text-center">';
+            $fnc->gen_alert('<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=https://faed.mju.ac.th/link/?l=' . $_GET["c"] . '" title="qr code generator" />', 'QR Code', 'info');            
+            echo '</div>';
+        }
+        ?>
         <?php
         if (isset($_GET["a"]) && $_GET["a"] == "edit" && isset($_GET["c"]) && $_SESSION["admin"]) {
             $data = $fnc->fread_search($_GET["c"]);
@@ -70,15 +84,15 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         ?>
             <form action="?a=update" method="POST">
                 <div class="mb-3">
-                    <label for="url" class="form-label">URL/Link</label>
+                    <label for="url" class="form-label">ระบุลิงก์ปลายทาง</label>
                     <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required value="<?= $data["url"]; ?>">
-                    <div id="urlHelp" class="form-text">* URL or link example: https://arch.mju.ac.th</div>
+                    <div id="urlHelp" class="form-text">* ตัวอย่าง: https://arch.mju.ac.th</div>
                 </div>
                 <input type="hidden" name="fst" value="update">
                 <input type="hidden" name="code" value="<?= $_GET["c"] ?>">
-                <button type="submit" class="btn btn-info">Update Link</button>
-                <a href="admin.php" target="_top" class="btn btn-warning">Cancel</a>
-                <a href="?a=delete&c=<?= $_GET["c"] ?>" target="_top" class="btn btn-danger float-end">DEL</a>
+                <button type="submit" class="btn btn-info">บันทึก</button>
+                <a href="admin.php" target="_top" class="btn btn-warning">ยกเลิก</a>
+                <a href="?a=delete&c=<?= $_GET["c"] ?>" target="_top" class="btn btn-danger float-end">ลบ</a>
             </form>
         <?php
         } else if ($_SESSION["admin"]) {
@@ -90,12 +104,12 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
                 <div id="titleHelp" class="form-text">* Title or Name of link</div>
             </div> -->
                 <div class="mb-3">
-                    <label for="url" class="form-label">URL/Link</label>
+                    <label for="url" class="form-label">ระบุลิงก์ปลายทาง</label>
                     <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required value="">
-                    <div id="urlHelp" class="form-text">* URL or link example: https://arch.mju.ac.th</div>
+                    <div id="urlHelp" class="form-text">* ตัวอย่าง: https://arch.mju.ac.th</div>
                 </div>
                 <input type="hidden" name="fst" value="createnew">
-                <button type="submit" class="btn btn-primary">Create Link</button>
+                <button type="submit" class="btn btn-primary">สร้างลิงก์</button>
             </form>
         <?php
         } else {
@@ -107,7 +121,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 
 
         <?php
-        if (isset($_GET["a"]) && $_GET["a"] == "update" && $_POST["fst"] == "update" && $_POST["url"]) {            
+        if (isset($_GET["a"]) && $_GET["a"] == "update" && $_POST["fst"] == "update" && $_POST["url"]) {
             $fnc->fwrite_update($_POST["code"], "url", $_POST["url"]);
             echo '<meta http-equiv="refresh" content="0.1;url=admin.php">';
         }
@@ -208,7 +222,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             $i = 0;
             echo '<hr class="mt-4 float-none">';
             echo '<div class="mb-2 col-12 col-md-10 mx-auto">';
-            echo '<h4 class="mb-3">My Links...</h4>';
+            echo '<h4 class="mb-3">ลิงก์ของฉัน...</h4>';
             echo '<ol class="list-group list-group-numbered">';
             foreach ($data as $d) {
                 // echo $d["citizenId"] . ' == ' . $_SESSION["admin"]["citizenId"] . '<br>';                    
@@ -219,8 +233,9 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
                     echo '<span class="ms-2 me-auto"><a href="' . $d["url"] . '" target="_blank" class="link-primary">' . $fnc->url_hosting . $d["code"] . '</a></span>';
                     // echo ' [by ' . $d["user"];
                     // echo '<span class="float-end"><a href="?a=delete&c=' . $d["code"] . '" target="_top" class="btn btn-danger">DEL</a></span>';
-                    echo '<span class="float-end"><a href="?a=edit&c=' . $d["code"] . '" target="_top" class="btn btn-warning">EDIT</a></span>';
-                    // echo '<a href="?" data-link_id="ISBN564541" data-link_code="ABC0" data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-warning btn_edit">Launch modal</a>';
+                    echo '<span class="float-end"><a href="?a=edit&c=' . $d["code"] . '" target="_top" class="btn btn-warning">แก้ไข</a></span>';
+                    echo '<a href="?a=view&c=' . $d["code"] . '" class="btn btn-info btn_qr">QR</a>';
+                    // echo '<a href="?" data-link_code="' . $d["code"] . '" data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-info btn_qr">QR</a>';
                     // echo '<span class="me-3 float-end" style="font-size: 0.8em;">[' . date("Y-m-d H:i:s น.", $d["time"]) . ']</span>';
                     echo '</li>';
                 } else {
@@ -256,7 +271,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             // // echo "<br>json encode: " . $data;
 
             // $fnc->fwrite_data($data);
-            $fnc->fwrite_update($_GET["c"], "status", "delete");            
+            $fnc->fwrite_update($_GET["c"], "status", "delete");
             // $_SESSION["link_info"] = NULL;
             echo '<meta http-equiv="refresh" content="3;url=admin.php">';
         }
@@ -285,7 +300,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             © 2021 Copyright Faculty of Architecture and Environmental Design, Maejo University<br>
         </div>
         <div class="text-center" style="font-weight:300;">
-            Deverloper : umnarj@mju.ac.th | version: 0.5 Beta
+            Deverloper : umnarj@mju.ac.th | version: <?= $fnc->system_version; ?>
         </div>
         <!-- Copyright -->
     </footer>
@@ -296,16 +311,14 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="myModalLabel">Modal title</h5>
+                    <h5 class="modal-title" id="myModalLabel">QR Code</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <p>some content</p>
-                    <input type="text" name="link_code" id="link_code" value="" />
+                <div class="modal-body text-center">
+                    <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=https://devbanban.com/" title="qr code" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>

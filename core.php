@@ -10,6 +10,7 @@ class Constants
     public $data_filename = 'link_data.txt';
     public $google_analytic_id = 'G-62GTDQF33N';
     public $url_hosting = 'faed.mju.ac.th/link/?l=';
+    public $system_version = '0.5 Beta';
 }
 
 class CommonFnc extends Constants
@@ -209,7 +210,8 @@ class CommonFnc extends Constants
     ) {
         // echo '<div class="app-wrapper">';
         echo '<div class="container col-12 mt-3">';
-        echo '<div class="app-card alert alert-dismissible shadow-sm mb-4 border-left-decoration" role="alert">';
+        // echo '<div class="app-card alert alert-dismissible shadow-sm mb-4 border-left-decoration" role="alert">';
+        echo '<div class="alert alert-' . $alert_style .' alert-dismissible fade show" role="alert">';
         echo '<div class="inner">';
         echo '<div class="app-card-body p-3 p-lg-4">';
         echo '<h3 class="mb-3 text-' .
@@ -219,7 +221,7 @@ class CommonFnc extends Constants
             '</h3>';
         echo '<div class="row gx-5 gy-3">';
         echo '<div class="col-12">';
-        echo '<div>' . $alert_sms . '</div>';
+        echo '<div class="text-center">' . $alert_sms . '</div>';
         echo '</div>';
         echo '</div>';
         echo '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
@@ -330,6 +332,27 @@ class files extends CommonFnc
             fwrite($file, $data);
             fclose($file);
         }
+    }
+
+    public function get_link_stat($data_file = null) {
+        $data = json_decode($this->fread_data($data_file), true, JSON_UNESCAPED_UNICODE);
+        $stat = array(
+            "all" => 0,
+            "enable" => 0,
+            "delete" => 0
+        );
+        if (is_array($data)) {
+            foreach ($data as $d) {
+                $stat["all"] += 1;
+                if ($d["status"] == "enable") {
+                    $stat["enable"] += 1;                    
+                }
+                if ($d["status"] == "delete") {
+                    $stat["delete"] += 1;                    
+                }
+            }
+        }
+        return $stat;
     }
 
     
