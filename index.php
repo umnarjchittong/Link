@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<?php
+include("core.php");
+$fnc = new App_Object();
+?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +23,7 @@
     <div class="container col-12 col-md-10 p-4">
         <div class="row mb-0">
             <div class="col">
-                <h1 class="text-success">FAED's Shortern Link</h1>
+                <h1 class="text-success">FAED's Shortern Link <?= $fnc->system_version ?></h1>
                 <h3 class="text-mute">by Arch@Maejo </h3>
             </div>
             <div class="col">
@@ -29,9 +32,7 @@
         </div>
         <hr class="my-4">
         <?php
-        if (isset($_GET["l"])) {
-            include("core.php");
-            $fnc = new App_Object();
+        if (isset($_GET["l"])) {            
 
             $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
             if (is_array($data)) {
