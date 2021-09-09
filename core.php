@@ -1,16 +1,16 @@
 <?php
-ini_set('display_errors', 1);
-
 session_start();
 $_SESSION['coding_indent'] = 0;
 
+ini_set('display_errors', 1);
 date_default_timezone_set('Asia/Bangkok');
 
 class Constants
 {
     public $data_filename = 'link_data.txt';
     public $google_analytic_id = 'G-62GTDQF33N';
-    public $url_hosting = 'faed.mju.ac.th/dev/link/?l=';
+    public $url_hosting = 'faed.mju.ac.th/dev/link/?l=';    
+    public $system_version = '1.0';
 }
 
 class CommonFnc extends Constants
@@ -210,7 +210,8 @@ class CommonFnc extends Constants
     ) {
         // echo '<div class="app-wrapper">';
         echo '<div class="container col-12 mt-3">';
-        echo '<div class="app-card alert alert-dismissible shadow-sm mb-4 border-left-decoration" role="alert">';
+        // echo '<div class="app-card alert alert-dismissible shadow-sm mb-4 border-left-decoration" role="alert">';
+        echo '<div class="alert alert-' . $alert_style .' alert-dismissible fade show" role="alert">';
         echo '<div class="inner">';
         echo '<div class="app-card-body p-3 p-lg-4">';
         echo '<h3 class="mb-3 text-' .
@@ -220,7 +221,7 @@ class CommonFnc extends Constants
             '</h3>';
         echo '<div class="row gx-5 gy-3">';
         echo '<div class="col-12">';
-        echo '<div>' . $alert_sms . '</div>';
+        echo '<div class="text-center">' . $alert_sms . '</div>';
         echo '</div>';
         echo '</div>';
         echo '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
@@ -250,7 +251,7 @@ class files extends CommonFnc
     {
         if (is_null($data_file)) {
             $data_file = $this->data_filename;
-        } else if (!stripos($data_file,".txt")) {
+        } else if (!stripos($data_file, ".txt")) {
             $data_file .= ".txt";
         }
         $file = fopen($data_file, "a+") or die("Unable to open file!");
@@ -269,7 +270,7 @@ class files extends CommonFnc
         if ($data) {
             if (is_null($data_file)) {
                 $data_file = $this->data_filename;
-            } else if (!stripos($data_file,".txt")) {
+            } else if (!stripos($data_file, ".txt")) {
                 $data_file .= ".txt";
             }
             $file = fopen($data_file, 'w') or die('Unable to open file!');
@@ -284,7 +285,7 @@ class files extends CommonFnc
         if ($data) {
             if (is_null($data_file)) {
                 $data_file = $this->data_filename;
-            } else if (!stripos($data_file,".txt")) {
+            } else if (!stripos($data_file, ".txt")) {
                 $data_file .= ".txt";
             }
             $file = fopen($data_file, 'a+') or die('Unable to open file!');
@@ -293,6 +294,68 @@ class files extends CommonFnc
             fclose($file);
         }
     }
+
+    public function fread_search($keycode, $data_file = null)
+    {
+        $data = json_decode($this->fread_data($data_file), true, JSON_UNESCAPED_UNICODE);
+        if (is_array($data)) {
+            foreach ($data as $d) {
+                if ($d["code"] == $keycode) {
+                    // echo "found...";
+                    return $d;
+                }
+            }
+        }
+    }
+
+    public function fwrite_update($keycode, $col_name = "url", $new_value, $data_file = null)
+    {        
+        if ($keycode && $new_value) {
+            $data_array = array();
+            if (is_null($data_file)) {
+                $data_file = $this->data_filename;
+            } else if (!stripos($data_file, ".txt")) {
+                $data_file .= ".txt";
+            }
+            $data = json_decode($this->fread_data($data_file), true, JSON_UNESCAPED_UNICODE);
+            if (is_array($data)) {
+                foreach ($data as $d) {
+                    if ($keycode == $d["code"]) {
+                        $d[$col_name] = $new_value;
+                    }
+                    array_push($data_array, $d);
+                }
+            }
+            $data = json_encode($data_array);
+            $file = fopen($data_file, 'w') or die('Unable to open file!');
+            // echo $data;
+            fwrite($file, $data);
+            fclose($file);
+        }
+    }
+
+    public function get_link_stat($data_file = null) {
+        $data = json_decode($this->fread_data($data_file), true, JSON_UNESCAPED_UNICODE);
+        $stat = array(
+            "all" => 0,
+            "enable" => 0,
+            "delete" => 0
+        );
+        if (is_array($data)) {
+            foreach ($data as $d) {
+                $stat["all"] += 1;
+                if ($d["status"] == "enable") {
+                    $stat["enable"] += 1;                    
+                }
+                if ($d["status"] == "delete") {
+                    $stat["delete"] += 1;                    
+                }
+            }
+        }
+        return $stat;
+    }
+
+    
 
     public function chk_duplicate($sample_data)
     {
@@ -452,7 +515,7 @@ class MJU_API extends CommonFnc
         $sql = "select " . $col . " from " . $tbl;
         $sql .= " order by " . $col . " Desc Limit 1";
         // return $this->get_db_col($sql);
-        $database = new database();
+        $database = new $this->database();
         return $database->get_db_col($sql);
     }
 
