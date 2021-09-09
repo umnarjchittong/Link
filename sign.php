@@ -10,7 +10,8 @@ require_once('plugins/nusoap.php');
 
 // * Setup the initial config
 // $WebToken = "940297e31f2343d793fb5867913f083d";
-$WebToken = "f454b13918d14f0da2e6649fea160663";
+// $WebToken = "f454b13918d14f0da2e6649fea160663";
+$WebToken = "60fd9d2e5d2d4107872853f9963f2b63"; // dev version
 $AuthPath = "https://passport.mju.ac.th?W=" . $WebToken;
 $SignInSuccess_URL = "admin.php";
 $SignInFailure_URL = "signout.php";

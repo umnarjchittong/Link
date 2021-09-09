@@ -9,8 +9,8 @@ class Constants
 {
     public $data_filename = 'link_data.txt';
     public $google_analytic_id = 'G-62GTDQF33N';
-    public $url_hosting = 'faed.mju.ac.th/link/?l=';
-    public $system_version = '0.5 Beta';
+    public $url_hosting = 'faed.mju.ac.th/dev/link/?l=';    
+    public $system_version = '1.0';
 }
 
 class CommonFnc extends Constants

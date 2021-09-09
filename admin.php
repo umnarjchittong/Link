@@ -34,7 +34,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAED's Short Link</title>
+    <title>FAED's Shortern Link</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link href="style.css" rel="stylesheet">
@@ -52,13 +52,13 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         </div>
     <?php } ?>
     <div class="container-fluid alert alert-warning text-center mb-3" style="font-size: 0.9rem; font-weight:500">
-        เวอร์ชั่น <?= $fnc->system_version; ?> (ทดลองใช้ อยากให้ปรับเปลี่ยนอย่างไร กดปุ่ม สอบถาม-แนะนำ ได้เลยครับ)
+        เวอร์ชั่น <?= $fnc->system_version; ?> (อยากให้ปรับเปลี่ยนอย่างไร กดปุ่ม สอบถาม-แนะนำ ได้เลยครับ)
     </div>
 
-    <div class="container col-12 col-md-12 col-lg-6 mt-3">
+    <div class="container col-12 col-md-12 col-lg-8 mt-3">
         <div class="row">
             <div class="col mt-2">
-                <h1 class="" style="color: var(--bs-primary);">FAED's Short Link</h1>
+                <h1 class="" style="color: var(--bs-primary);">FAED's Shortern Link</h1>
             </div>
             <div class="col">
                 <div class="float-end">
@@ -72,9 +72,33 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 
         <?php
         if (isset($_GET["a"]) && $_GET["a"] == "view" && isset($_GET["c"])) {
-            echo '<div class="col-10 col-md-8 mx-auto text-center">';
-            $fnc->gen_alert('<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=https://faed.mju.ac.th/link/?l=' . $_GET["c"] . '" title="qr code generator" />', 'QR Code', 'info');            
-            echo '</div>';
+            // echo '<div class="col-10 col-md-8 mx-auto text-center">';
+            // $fnc->gen_alert('<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=' . $fnc->url_hosting . $_GET["c"] . '" title="qr code generator" />', 'QR Code', 'info');
+        ?>
+            <div class="container col-12 col-md-10 mx-auto mt-5">
+                <!-- <div class="alert alert-dismissible shadow-sm mb-4 border-left-decoration" role="alert"> -->
+                <div class="alert alert-danger alert-dismissible fade show p-0" role="alert">
+                    <div class="card text-white bg-secondary">
+                        <div class="card-header">
+                            <span>QR Code : </span>
+                            <span style="font-size: 0.9em;"><a href="<?php echo 'https://' . $fnc->url_hosting . $_GET["c"] ?>" target="_blank" class="link-warning"><?php echo $fnc->url_hosting . $_GET["c"] ?></a></span>
+                            <button type="button" class="btn-close float-end pb-1  link-warning" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <!-- <a href="#close" class="btn-close float-end pb-1 link-warning" data-bs-dismiss="alert" aria-label="Close">x</a> -->
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=<?= $fnc->url_hosting . $_GET["c"] ?>" title="qr code generator" class="mx-auto" />
+                        </div>
+                        <div class="card-footer text-end" style="font-size: 0.8em; font-weight:300;">
+                            * คลิกขวาเซฟเป็นรูปภาพได้เลยครับ
+                        </div>
+                    </div>
+                </div>
+                <div id="qr footer" class="mt-3 mb-5"></div>
+            </div>
+            
+            <!-- </div> -->
+        <?php
+            // echo '</div>';
         }
         ?>
         <?php
@@ -115,10 +139,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         } else {
             echo '<a href="sign.php" target="_top" class="btn btn-danger">! Please Sign First</a>';
         }
-
         ?>
-
-
 
         <?php
         if (isset($_GET["a"]) && $_GET["a"] == "update" && $_POST["fst"] == "update" && $_POST["url"]) {
@@ -248,6 +269,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             echo '</ol>';
             echo '</div>';
             $_SESSION["link_info"] = $data;
+            echo '<br>';
         } else {
             // echo "not data founded";
         }
