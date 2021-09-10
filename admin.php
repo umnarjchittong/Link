@@ -9,8 +9,6 @@ if (!$_SESSION["admin"]) {
     header("location:signout.php");
 }
 
-
-
 // $f_data = fopen($data_file, 'r') or die('Unable to open file!'); 
 /* ? Modes	Description
 r	Open a file for read only. File pointer starts at the beginning of the file
@@ -30,7 +28,6 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 ?>
 
 
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,30 +38,30 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 </head>
 
 <body>
-    <?php if ($_SESSION["admin"]["fistNameEn"] == "Umnarj") { ?>
-        <div class="container-fluid alert alert-info text-center" style="font-size: 0.9rem; font-weight:300">
-            <?php print_r($_SESSION["admin"]); ?>
-            <hr>
-            <?php
-            $stat = $fnc->get_link_stat();
-            echo "ทั้งหมด " . $stat["all"] . ", ใช้งาน " . $stat["enable"] . ", ยกเลิก " . $stat["delete"];
-            ?>
-        </div>
-    <?php } ?>
+    <?php
+    if ($_SESSION["admin"]["fistNameEn"] == "Umnarj") {
+        $fnc->debug_console("admin : ", $_SESSION["admin"]);
+        $fnc->debug_console("stat : ", $fnc->get_link_stat());
+    }
+    ?>
     <div class="container-fluid alert alert-warning text-center mb-3" style="font-size: 0.9rem; font-weight:500">
-        เวอร์ชั่น <?= $fnc->system_version; ?> (อยากให้ปรับเปลี่ยนอย่างไร กดปุ่ม สอบถาม-แนะนำ ได้เลยครับ)
+        เวอร์ชั่น <?= $fnc->system_version; ?> (เป็นเวอร์ชันที่อยู่ในระหว่างการพัฒนา สามารถแนะนำเพิ่มเติมได้เลยครับ)
     </div>
 
     <div class="container col-12 col-md-12 col-lg-8 mt-3">
         <div class="row">
             <div class="col mt-2">
-                <h1 class="" style="color: var(--bs-primary);">FAED's Shortern Link</h1>
+                <h3 class="mt-1" style="color: var(--bs-primary);">FAED's Shortern Link</h3>
             </div>
             <div class="col">
                 <div class="float-end">
-                    <a href="https://m.me/umnarj" target="_blank" class="col m-2 btn btn-sm btn-primary text-white">สอบถาม-แนะนำ</a>
-                    <a href="https://www.the-qrcode-generator.com/" target="_blank" class="col m-2 btn btn-sm btn-success text-white">สร้าง QR</a>
-                    <a href="signout.php" target="_top" class="col m-2 btn btn-secondary">Sign-Out</a>
+                    <div>
+                        <a href="https://m.me/umnarj" target="_blank" class="col m-2 btn btn-sm btn-primary text-white">สอบถาม-แนะนำ</a>
+                        <a href="https://www.the-qrcode-generator.com/" target="_blank" class="col m-2 btn btn-sm btn-success text-white">สร้าง QR</a>
+                    </div>
+                    <div class="float-end">
+                        <a href="signout.php" target="_top" class="col m-2 btn btn-secondary">Sign-Out</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -80,7 +77,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
                 <div class="alert alert-danger alert-dismissible fade show p-0" role="alert">
                     <div class="card text-white bg-secondary">
                         <div class="card-header">
-                            <span>QR Code : </span>
+                            <span>QR Code for : </span>
                             <span style="font-size: 0.9em;"><a href="<?php echo 'https://' . $fnc->url_hosting . $_GET["c"] ?>" target="_blank" class="link-warning"><?php echo $fnc->url_hosting . $_GET["c"] ?></a></span>
                             <button type="button" class="btn-close float-end pb-1  link-warning" data-bs-dismiss="alert" aria-label="Close"></button>
                             <!-- <a href="#close" class="btn-close float-end pb-1 link-warning" data-bs-dismiss="alert" aria-label="Close">x</a> -->
@@ -91,11 +88,17 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
                         <div class="card-footer text-end" style="font-size: 0.8em; font-weight:300;">
                             * คลิกขวาเซฟเป็นรูปภาพได้เลยครับ
                         </div>
+                        <div class="card-footer text-center text-warning" style="font-size: 0.8em; font-weight:300;">
+                            <?php
+                            $data = $fnc->get_db_array("SELECT * FROM links WHERE links_code = '" . $_GET["c"] . "'")[0];
+                            // print_r($data);
+                            echo "destination : " . $data["links_url"];
+                            ?>
+                        </div>
                     </div>
                 </div>
                 <div id="qr footer" class="mt-3 mb-5"></div>
             </div>
-            
             <!-- </div> -->
         <?php
             // echo '</div>';
@@ -103,13 +106,14 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         ?>
         <?php
         if (isset($_GET["a"]) && $_GET["a"] == "edit" && isset($_GET["c"]) && $_SESSION["admin"]) {
-            $data = $fnc->fread_search($_GET["c"]);
+            // $data = $fnc->fread_search($_GET["c"]);
+            $data = $fnc->get_db_array("SELECT links_url FROM links WHERE links_code = '" . $_GET["c"] . "'")[0];
             // print_r($data);
         ?>
             <form action="?a=update" method="POST">
                 <div class="mb-3">
                     <label for="url" class="form-label">ระบุลิงก์ปลายทาง</label>
-                    <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required value="<?= $data["url"]; ?>">
+                    <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required value="<?= $data["links_url"]; ?>">
                     <div id="urlHelp" class="form-text">* ตัวอย่าง: https://arch.mju.ac.th</div>
                 </div>
                 <input type="hidden" name="fst" value="update">
@@ -143,21 +147,27 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 
         <?php
         if (isset($_GET["a"]) && $_GET["a"] == "update" && $_POST["fst"] == "update" && $_POST["url"]) {
-            $fnc->fwrite_update($_POST["code"], "url", $_POST["url"]);
+            $sql = "UPDATE links SET links_url='" . $_POST["url"] . "',links_time=CURRENT_TIMESTAMP WHERE links_code = '" . $_POST["code"] . "'";
+            $fnc->sql_execute($sql);
+            // $fnc->fwrite_update($_POST["code"], "url", $_POST["url"]);
+
             echo '<meta http-equiv="refresh" content="0.1;url=admin.php">';
         }
 
         if (isset($_GET["a"]) && $_GET["a"] == "createnew" && $_POST["fst"] == "createnew") {
 
-            // echo "action create new" . "<br>";
             $code = $fnc->gen_code();
-            // echo "gen code : " . $code . "<br>";
-            // echo "user : " . $_SESSION["admin"]["fistNameEn"] . "<br>";
-            $data_form = array("code" => $code, "title" => "คณะสถาปัตย์ฯ", "url" => $_POST["url"], "user" => $_SESSION["admin"]["fistNameEn"], "time" => time(), "status" => "enable");
-            // print_r($data_form);
-            // echo "your link : " . $fnc->url_hosting . $code . "<br>";
+            /*echo "action create new" . "<br>";            
+            echo "gen code : " . $code . "<br>";
+            echo "user : " . $_SESSION["admin"]["fistNameEn"] . "<br>";
+            $data_form = array("code" => $code, "title" => "คณะสถาปัตย์ฯ", "url" => $_POST["url"], "user" => $_SESSION["admin"]["fistNameEn"], "user_id" => $_SESSION["admin"]["citizenId"], "time" => time(), "status" => "enable");
+            print_r($data_form);
+            echo "your link : " . $fnc->url_hosting . $code . "<br>";*/
 
-            $str_data = $fnc->fread_data();
+            $sql = "INSERT INTO links (links_code, links_title, links_url, links_user, links_user_id) VALUES ('" . $code . "', 'คณะสถาปัตย์ฯ', '" . $_POST["url"] . "', '" . $_SESSION["admin"]["fistNameEn"] . "', '" . $_SESSION["admin"]["citizenId"] . "')";
+            $fnc->debug_console("insert sql: " . $sql);
+            $fnc->sql_execute($sql);
+            /*$str_data = $fnc->fread_data();
             if (!is_null($str_data)) {
                 $data_array = array();
                 // echo '<hr id=55>text file read data<br>' . $str_data . '<br>';
@@ -180,7 +190,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             $data = json_encode($data_array);
             // echo "<br>json encode: " . $data;
 
-            $fnc->fwrite_data($data);
+            $fnc->fwrite_data($data);*/
             $_SESSION["link_info"] = NULL;
             echo '<div id="countdown" class="text-info text-right float-end"></div>';
             echo '<script>
@@ -190,7 +200,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
                     clearInterval(downloadTimer);
                     // document.getElementById("countdown").innerHTML = "Finished";
                 } else {
-                    document.getElementById("countdown").innerHTML = "Create a link completed. Please wait " + timeleft + " seconds remaining";
+                    document.getElementById("countdown").innerHTML = "Create a link completed. Please wait " + timeleft + " seconds remaining.";
                 }
                 timeleft -= 1;
             }, 1000);
@@ -198,7 +208,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             echo '<meta http-equiv="refresh" content="4;url=admin.php?a=fread">';
         }
 
-        if (isset($_GET["a"]) && $_GET["a"] == "fwrite" && isset($_GET["v"])) {
+        /*if (isset($_GET["a"]) && $_GET["a"] == "fwrite" && isset($_GET["v"])) {
             $str_data = $fnc->fread_data();
             if (!is_null($str_data)) {
                 $data_array = array();
@@ -225,19 +235,25 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             $fnc->fwrite_data($data);
             $_SESSION["link_info"] = NULL;
             echo '<meta http-equiv="refresh" content="2;url=admin.php?a=fread">';
-        }
+        }*/
 
-        if (isset($_GET["a"]) && $_GET["a"] == "new") {
+        /*if (isset($_GET["a"]) && $_GET["a"] == "new") {
             // $_SESSION["link_info"] = NULL;
             // $data_array = array("code" => $fnc->gen_code(), "title" => "Link1", "url" => "url 1 togo...", "user" => "umnarj", "time" => time(), "status" => "enable");
             // echo 'link info Set<br>';
             // print_r($data_array);
             // echo '<br>';
             // $_SESSION["link_info"] = $data_array;
-        }
+        }*/
 
         // if (isset($_GET["a"]) && $_GET["a"] == "fread") {
-        $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
+        // ! get data from data base
+        // $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
+        $sql = "SELECT links.* FROM links WHERE links.links_user_id = '" . $_SESSION["admin"]["citizenId"] . "' ORDER BY links_time Desc";
+        $data = $fnc->get_db_array($sql);
+        if ($_SESSION["admin"]["fistNameEn"] == "Umnarj") {
+            $fnc->debug_console("my links... ", $data);
+        }
         if (is_array($data)) {
             // print_r($data);
             $i = 0;
@@ -247,15 +263,15 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             echo '<ol class="list-group list-group-numbered">';
             foreach ($data as $d) {
                 // echo $d["citizenId"] . ' == ' . $_SESSION["admin"]["citizenId"] . '<br>';                    
-                if ($d["status"] == "enable" && $d["user"] == $_SESSION["admin"]["fistNameEn"]) {
+                if ($d["links_status"] == "enable" && $d["links_user_id"] == $_SESSION["admin"]["citizenId"]) {
                     echo '<li class="list-group-item d-flex justify-content-between align-items-start">';
                     // $i++;
                     // echo $i . '. ';
-                    echo '<span class="ms-2 me-auto"><a href="' . $d["url"] . '" target="_blank" class="link-primary">' . $fnc->url_hosting . $d["code"] . '</a></span>';
+                    echo '<span class="ms-2 me-auto"><a href="' . $d["links_url"] . '" target="_blank" class="link-primary">' . $fnc->url_hosting . $d["links_code"] . '</a></span>';
                     // echo ' [by ' . $d["user"];
                     // echo '<span class="float-end"><a href="?a=delete&c=' . $d["code"] . '" target="_top" class="btn btn-danger">DEL</a></span>';
-                    echo '<span class="float-end"><a href="?a=edit&c=' . $d["code"] . '" target="_top" class="btn btn-warning">แก้ไข</a></span>';
-                    echo '<a href="?a=view&c=' . $d["code"] . '" class="btn btn-info btn_qr">QR</a>';
+                    echo '<span class="float-end"><a href="?a=edit&c=' . $d["links_code"] . '" target="_top" class="btn btn-warning me-2">แก้ไข</a></span>';
+                    echo '<a href="?a=view&c=' . $d["links_code"] . '" class="btn btn-info btn_qr">QR</a>';
                     // echo '<a href="?" data-link_code="' . $d["code"] . '" data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-info btn_qr">QR</a>';
                     // echo '<span class="me-3 float-end" style="font-size: 0.8em;">[' . date("Y-m-d H:i:s น.", $d["time"]) . ']</span>';
                     echo '</li>';
@@ -268,7 +284,7 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             }
             echo '</ol>';
             echo '</div>';
-            $_SESSION["link_info"] = $data;
+            // $_SESSION["link_info"] = $data;
             echo '<br>';
         } else {
             // echo "not data founded";
@@ -293,9 +309,12 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             // // echo "<br>json encode: " . $data;
 
             // $fnc->fwrite_data($data);
-            $fnc->fwrite_update($_GET["c"], "status", "delete");
+            // $fnc->fwrite_update($_GET["c"], "status", "delete");
             // $_SESSION["link_info"] = NULL;
-            echo '<meta http-equiv="refresh" content="3;url=admin.php">';
+
+            $sql = "UPDATE links SET links_status='delete',links_time=CURRENT_TIMESTAMP WHERE links_code = '" . $_GET["c"] . "'";
+            $fnc->sql_execute($sql);
+            echo '<meta http-equiv="refresh" content="0.1;url=admin.php">';
         }
 
 

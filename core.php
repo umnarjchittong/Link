@@ -234,7 +234,313 @@ class CommonFnc extends Constants
     }
 }
 
-class files extends CommonFnc
+class database extends CommonFnc
+{
+    // protected $mssql_server = '10.1.3.2';
+    // protected $mssql_dbname = 'FAED_PR';
+    // protected $mssql_usern = 'sa';
+    // protected $mssql_passw = 'faedadmin';
+    protected $mysql_server = "10.1.3.5:3306";
+    protected $mysql_user = "shortern_link";
+    protected $mysql_pass = "faedadmin";
+    // protected $mysql_name = "faed_ddm";
+    protected $mysql_name = "shortern_link";
+
+    public function open_conn()
+    {
+        // $conn = mysqli_connect('10.1.3.5', 'faed_ddm', 'faedadmin', 'faed_ddm');        
+        // $conn = new mysqli($this->mysql_server, $this->mysql_user, $this->mysql_pass, $this->mysql_name);
+        //$conn = new mysqli("10.1.3.5:3306","rims","faedamin","research_rims");
+        $conn = mysqli_connect($this->mysql_server, $this->mysql_user, $this->mysql_pass, $this->mysql_name);
+        if (mysqli_connect_errno()) {
+            // die("Failed to connect to MySQL: " . mysqli_connect_error());
+            $this->debug_console("MySQL Error!" . mysqli_connect_error());
+        }
+        mysqli_set_charset($conn, "utf8");
+        return $conn;
+    }
+
+    public function get_result($sql)
+    {
+        $result = $this->open_conn()->query($sql);
+        return $result;
+    }
+
+    public function sql_execute($sql)
+    {
+        //$this->open_conn()->query($sql);
+        $conn = $this->open_conn();
+        $conn->query($sql);
+        return $conn->insert_id;
+    }
+
+    public function sql_execute_debug($st = "", $sql)
+    {
+        if ($st != "") {
+            if ($st == "die") {
+                $this->debug("die", "SQL: " . $sql);
+            } else {
+                $this->debug("", "SQL: " . $sql);
+            }
+        } else {
+            //$this->open_conn()->query($sql);
+            $conn = $this->open_conn();
+            $conn->query($sql);
+            return $conn->insert_id;
+        }
+    }
+
+    public function sql_secure_string($str)
+    {
+        return mysqli_real_escape_string($this->open_conn(), $str);
+    }
+
+    public function get_db_row($sql)
+    {
+        if (isset($sql)) {
+            $result = $this->get_result($sql);
+            if ($result->num_rows > 0) {;
+                return $result->fetch_assoc();
+            }
+            return NULL;
+        } else {
+            die("fnc get_db_col no sql parameter.");
+        }
+    }
+
+    public function get_db_array($sql)
+    {
+        if (isset($sql)) {
+            $result = $this->get_result($sql);
+            if ($result->num_rows > 0) {
+                return $result->fetch_all(MYSQLI_ASSOC);
+            }
+            return NULL;
+        } else {
+            die("fnc get_db_col no sql parameter.");
+        }
+    }
+
+    public function get_dataset_array($sql, $method = "MYSQLI_NUM")
+    {
+        // * method = MYSQLI_NUM, MYSQLI_ASSOC, MYSQLI_BOTH
+        return $this->open_conn()->query($sql)->fetch_all(MYSQLI_BOTH);
+    }
+
+    // public function get_dataset_array($sql)
+    // {
+    //     $dataset = array();
+    //     if (isset($sql)) {
+    //         $result = $this->get_result($sql);
+    //         if ($result->num_rows > 0) {
+    //             while ($row = $result->fetch_array()) {
+    //                 array_push($dataset, array($row[0], $row[1]));
+    //             }
+    //             return $dataset;
+    //         }
+    //         //return NULL;
+    //     } else {
+    //         die("fnc get_db_col no sql parameter.");
+    //     }
+    // }
+
+    public function get_db_col($sql)
+    {
+        if (isset($sql)) {
+            //echo $this->debug("", "fnc get_db_col sql: " . $sql);
+            $result = $this->get_result($sql);
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_array();
+                return $row[0];
+            }
+            return NULL;
+        } else {
+            die("fnc get_db_col no sql parameter.");
+        }
+    }
+
+    public function get_last_id($tbl = "activity", $col = "act_id")
+    {
+        $sql = "select " . $col . " from " . $tbl;
+        $sql .= " order by " . $col . " Desc Limit 1";
+        return $this->get_db_col($sql);
+    }
+
+    public function gen_fiscal_year_to_db()
+    {
+        $sql = "SELECT message_id, message_created FROM message WHERE message_fiscal_year is null";
+        $result = $this->get_result($sql);
+        if ($result->num_rows > 0) {
+            while ($data = $result->fetch_assoc()) {
+                $sql = "UPDATE message SET message_fiscal_year='" . $this->get_fiscal_year($data["message_created"]) . "' WHERE message_id = " . $data["message_id"];
+                $this->sql_execute($sql);
+                $this->debug_console("convert fiscal year: " . $sql);
+            }
+            echo "convert fiscal year is done.";
+        }
+    }
+
+    public function get_board_info($col_name = "board_short", $val)
+    {
+        if ($val) {            
+            if ($col_name == "board_id") {
+                $col_name = $col_name . " = " . $val;
+            } else {
+                $col_name = $col_name . " = '" . $val . "'";
+            }
+            return $this->get_db_row("select * from board where " . $col_name);
+        }
+    }
+
+    public function test_add()
+    {
+        // funtion get fiscal year
+        // echo $this->get_fiscal_year(date("Y-m-d"));
+        // die();
+        $sql = "INSERT INTO message(
+            message_username,
+            message_useremail,
+            message_userphone,
+            message_usertype,
+            message_category,
+            message_title,
+            message_memo,
+            message_created,
+            message_fiscal_year
+        )
+        VALUES(
+            'รมย์ธีรา ชิดทอง',
+            'umnarjchittong@gmail.com',
+            '0866581883',
+            'บุคลากรภายในมหาวิทยาลัย',
+            'ด้านบริการวิชาการ',
+            'ทดสอบการส่งข้อความสายตรงคณบดี',
+            '" . date("h:i:sa") . " ทำการทดสอบส่งข้อความเข้าระบบสายตรงคณบดี 2021 โดยกำหนดจากข้อความอัตโนมัติ ในหัวข้อเกี่ยวกับการให้บริการวิชาการ ของคณะสถาปัตยกรรมศาสตร์และการออกแบบสิ่งแวดล้อม',
+            CURRENT_TIMESTAMP,
+            '" . $this->get_fiscal_year(date("Y-m-d")) . "'
+        )";
+        $this->sql_execute($sql);
+        $this->gen_notify_email($_SESSION["admin"]["citizenId"]);
+    }
+
+    public function menu_message_hide($board)
+    {
+        $sql = "SELECT count(message_id) FROM message WHERE message_status <> 'new' AND message_assigned = '" . $board . "'";
+        if ($this->get_db_col($sql) < 1) {
+            echo " d-none";
+        }
+    }
+
+    public function gen_notify_email_body($dm)
+    {
+        $body = '<!doctype html>
+        <html lang="en">
+        
+        <head>
+            <!-- Required meta tags -->
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+            <!-- Bootstrap CSS -->
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+        
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+        
+            <title>PHPMailer Text Sending</title>
+        
+        </head>
+        
+        <body style="font-family: Kanit, sans-serif;">
+            <div class="container">
+                <h4 class="mb-5">ระบบสายตรงคณบดี คณะสถาปัตย์ฯ มีการแจ้งเตือนใหม่</h4>
+                <div><p>' . $dm["message_title"] . '</p></div>
+                <div class="mb-1"><img src="https://arch.mju.ac.th/img/mju_logo.jpg" width="100px"></div>
+                <div>
+                    <p class="" style="font-size: 0.8em;">คณะสถาปัตยกรรมศาสตร์และการออกแบบสิ่งแวดล้อม<br>มหาวิทยาลัยแม่โจ้<br>โทร 053873350</p>
+                </div>
+        
+            </div>
+        
+        
+        
+        
+            <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script> -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
+        </body>
+        
+        </html>';
+        return $body;
+    }
+
+    public function gen_notify_email($pid)
+    {
+        $sql = "SELECT * FROM setting WHERE setting_user_pid = " . $pid;
+        $setting = $this->get_db_row($sql);
+        $sql = "SELECT * FROM message order by message_id desc limit 1";
+        $dm = $this->get_db_row($sql);
+        if ($setting["setting_email_noti"]) {
+            $_SESSION["data"] = array(
+                "receiver_address" => $setting["setting_email"],
+                "receiver_name" => $_SESSION["admin"]["firstName"] . " " . $_SESSION["admin"]["lastName"],
+                "from_address" => "archmaejo@gmail.com",
+                "from_name" => "archmaejo",
+                "reply_address" => "archmaejo@gmail.com",
+                "reply_name" => "archmaejo",
+                "cc_address" => "",
+                "cc_name" => "",
+                "subject" => "สายตรงคณบดี มีการแจ้งเตือนใหม่",
+                // "content" => "ทดสอบการแจ้งเตือนข้อความ จากระบบสายตรงคณบดี <b>ทาง email ด้วย phpmailer</b>",
+                "content" => $this->gen_notify_email_body($dm),
+                "attachment" => ""
+            );
+            echo '<script type="text/javascript">window.open("../phpmailer/mail.php?next=../admin/message.php?p=new","_parent");</script>';
+        }
+    }
+
+    public function get_message_count_fiscal($this_fiscal = NULL)
+    {
+        if (!$this_fiscal) {
+            $this_fiscal = $this->get_fiscal_year();
+        }
+        $message = array();
+        $message[0]["month"] = 0;
+        for ($i = 10; $i <= 12; $i++) {
+            // echo $i . " , ";
+
+            $message[$i]["month"] = $i;
+            $sql = "Select Count(message_created) as message From message Where message_status != '' AND Month(message_created) = " . $i . " AND message_fiscal_year = '" . $this_fiscal . "'";
+            $message[$i]["created"] = $this->get_db_col($sql);
+            $message[0]["created"] += $message[$i]["created"];
+            $sql = "Select Count(message_created) as message From message Where message_status != 'deleted' AND Month(message_created) = " . $i . " AND message_fiscal_year = '" . $this_fiscal . "'";
+            $message[$i]["active"] = $this->get_db_col($sql);
+            $message[0]["active"] += $message[$i]["active"];
+            $sql = "Select Count(message_created) as message From message Where message_status = 'new' AND Month(message_created) = " . $i . " AND message_fiscal_year = '" . $this_fiscal . "'";
+            $message[$i]["new"] = $this->get_db_col($sql);
+            $message[0]["new"] += $message[$i]["new"];
+            $sql = "Select Count(message_created) as message From message Where message_status = 'read' AND Month(message_created) = " . $i . " AND message_fiscal_year = '" . $this_fiscal . "'";
+            $message[$i]["read"] = $this->get_db_col($sql);
+            $message[0]["read"] += $message[$i]["read"];
+            $sql = "Select Count(message_created) as message From message Where message_status = 'completed' AND Month(message_created) = " . $i . " AND message_fiscal_year = '" . $this_fiscal . "'";
+            $message[$i]["completed"] = $this->get_db_col($sql);
+            $message[0]["completed"] += $message[$i]["completed"];
+            $sql = "Select Count(message_created) as message From message Where message_status = 'deleted' AND Month(message_created) = " . $i . " AND message_fiscal_year = '" . $this_fiscal . "'";
+            $message[$i]["deleted"] = $this->get_db_col($sql);
+            $message[0]["deleted"] += $message[$i]["deleted"];
+            if ($i == 12) {
+                $i = 0;
+            }
+            if ($i == 9) {
+                break;
+            }
+        }
+        return $message;
+    }
+}
+
+class files extends database
 {
     // * Modes Description
     // r	Open a file for read only. File pointer starts at the beginning of the file
@@ -249,6 +555,7 @@ class files extends CommonFnc
 
     public function fread_data($data_file = null)
     {
+        die("din't use anymore");
         if (is_null($data_file)) {
             $data_file = $this->data_filename;
         } else if (!stripos($data_file, ".txt")) {
@@ -335,23 +642,13 @@ class files extends CommonFnc
     }
 
     public function get_link_stat($data_file = null) {
-        $data = json_decode($this->fread_data($data_file), true, JSON_UNESCAPED_UNICODE);
+        $data = $this->get_db_array("select * from links");
         $stat = array(
-            "all" => 0,
-            "enable" => 0,
-            "delete" => 0
+            "all" => $this->get_db_col("SELECT count(links_id) as count_links FROM links"),
+            "enable" => $this->get_db_col("SELECT count(links_id) as count_links FROM links WHERE links_status = 'enable'"),
+            "delete" => $this->get_db_col("SELECT count(links_id) as count_links FROM links WHERE links_status = 'delete'"),
+            "users" => $this->get_db_col("SELECT count(DISTINCT(links_user_id)) as count_links FROM links WHERE links_status = 'enable'")
         );
-        if (is_array($data)) {
-            foreach ($data as $d) {
-                $stat["all"] += 1;
-                if ($d["status"] == "enable") {
-                    $stat["enable"] += 1;                    
-                }
-                if ($d["status"] == "delete") {
-                    $stat["delete"] += 1;                    
-                }
-            }
-        }
         return $stat;
     }
 
@@ -385,11 +682,12 @@ class files extends CommonFnc
         $code = strtoupper($rnd_hex) . $chk_sum;
 
         // check from array if founded call gen_code function again else return code
-        $str_data = $this->fread_data();
-        if (!is_null($str_data)) {
-            $data_array = json_decode($str_data, true, JSON_UNESCAPED_UNICODE);
-            foreach ($data_array as $f_data) {
-                if (isset($f_data["code"]) && $f_data["code"] == $code) {
+        $sql = "SELECT links.links_code FROM links WHERE links.links_status = 'enable';";
+        $code_exist = $this->get_db_array($sql);
+        if ($code_exist) {
+            // $data_array = json_decode($code_exist, true, JSON_UNESCAPED_UNICODE);
+            foreach ($code_exist as $d) {
+                if (isset($d["links_code"]) && $d["links_code"] == $code) {
                     $this->gen_code();
                 } else {
                     return $code;
