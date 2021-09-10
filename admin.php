@@ -9,22 +9,6 @@ if (!$_SESSION["admin"]) {
     header("location:signout.php");
 }
 
-// $f_data = fopen($data_file, 'r') or die('Unable to open file!'); 
-/* ? Modes	Description
-r	Open a file for read only. File pointer starts at the beginning of the file
-w	Open a file for write only. Erases the contents of the file or creates a new file if it doesn't exist. File pointer starts at the beginning of the file
-a	Open a file for write only. The existing data in file is preserved. File pointer starts at the end of the file. Creates a new file if the file doesn't exist
-x	Creates a new file for write only. Returns FALSE and an error if file already exists
-r+	Open a file for read/write. File pointer starts at the beginning of the file
-w+	Open a file for read/write. Erases the contents of the file or creates a new file if it doesn't exist. File pointer starts at the beginning of the file
-a+	Open a file for read/write. The existing data in file is preserved. File pointer starts at the end of the file. Creates a new file if the file doesn't exist
-x+	Creates a new file for read/write. Returns FALSE and an error if file already exists
-*/
-// $txt = "John Doe\n";
-// fwrite($f_data, $txt);
-// $txt = "Jane Doe\n";
-// fwrite($f_data, $txt);
-// fclose($f_data);
 ?>
 
 
@@ -56,10 +40,10 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             <div class="col">
                 <div class="float-end">
                     <div>
-                        <a href="https://m.me/umnarj" target="_blank" class="col m-2 btn btn-sm btn-primary text-white">สอบถาม-แนะนำ</a>
-                        <a href="https://www.the-qrcode-generator.com/" target="_blank" class="col m-2 btn btn-sm btn-success text-white">สร้าง QR</a>
+                        <!-- <a href="https://www.the-qrcode-generator.com/" target="_blank" class="col m-2 btn btn-sm btn-success text-white">สร้าง QR</a> -->
                     </div>
                     <div class="float-end">
+                        <a href="https://m.me/umnarj" target="_blank" class="col m-2 btn btn-sm btn-primary text-white">สอบถาม-แนะนำ</a>
                         <a href="signout.php" target="_top" class="col m-2 btn btn-secondary">Sign-Out</a>
                     </div>
                 </div>
@@ -69,18 +53,27 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
 
         <?php
         if (isset($_GET["a"]) && $_GET["a"] == "view" && isset($_GET["c"])) {
-            // echo '<div class="col-10 col-md-8 mx-auto text-center">';
-            // $fnc->gen_alert('<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=' . $fnc->url_hosting . $_GET["c"] . '" title="qr code generator" />', 'QR Code', 'info');
+            $data = $fnc->get_db_col("SELECT links_url FROM links WHERE links_code = '" . $_GET["c"] . "'");
         ?>
             <div class="container col-12 col-md-10 mx-auto mt-5">
-                <!-- <div class="alert alert-dismissible shadow-sm mb-4 border-left-decoration" role="alert"> -->
-                <div class="alert alert-danger alert-dismissible fade show p-0" role="alert">
+                <div class="alert alert alert-dismissible fade show p-0" role="alert">
+                    <?php
+                    if (isset($_GET["id"])) {
+                        // * url dupplicated warning
+                        // echo "url dupplicated";
+                    ?>
+                        <div class="alert alert-info p-4 text-center mb-4 alert-dismissible " role="alert">
+                            <?= $data; ?>
+                            <br>ลิงก์นี้ท่านเคยสร้างไว้แล้ว
+                        </div>
+                    <?php
+                    }
+                    ?>
                     <div class="card text-white bg-secondary">
                         <div class="card-header">
                             <span>QR Code for : </span>
                             <span style="font-size: 0.9em;"><a href="<?php echo 'https://' . $fnc->url_hosting . $_GET["c"] ?>" target="_blank" class="link-warning"><?php echo $fnc->url_hosting . $_GET["c"] ?></a></span>
                             <button type="button" class="btn-close float-end pb-1  link-warning" data-bs-dismiss="alert" aria-label="Close"></button>
-                            <!-- <a href="#close" class="btn-close float-end pb-1 link-warning" data-bs-dismiss="alert" aria-label="Close">x</a> -->
                         </div>
                         <div class="card-body text-center">
                             <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=<?= $fnc->url_hosting . $_GET["c"] ?>" title="qr code generator" class="mx-auto" />
@@ -88,27 +81,21 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
                         <div class="card-footer text-end" style="font-size: 0.8em; font-weight:300;">
                             * คลิกขวาเซฟเป็นรูปภาพได้เลยครับ
                         </div>
-                        <div class="card-footer text-center text-warning" style="font-size: 0.8em; font-weight:300;">
-                            <?php
-                            $data = $fnc->get_db_array("SELECT * FROM links WHERE links_code = '" . $_GET["c"] . "'")[0];
-                            // print_r($data);
-                            echo "destination : " . $data["links_url"];
-                            ?>
-                        </div>
+                        <?php
+                        if ($_SESSION["admin"]["fistNameEn"] == "Umnarj") {
+                            $fnc->debug_console("destination : ", $data);
+                        }
+                        ?>
                     </div>
                 </div>
                 <div id="qr footer" class="mt-3 mb-5"></div>
             </div>
-            <!-- </div> -->
         <?php
-            // echo '</div>';
         }
         ?>
         <?php
         if (isset($_GET["a"]) && $_GET["a"] == "edit" && isset($_GET["c"]) && $_SESSION["admin"]) {
-            // $data = $fnc->fread_search($_GET["c"]);
             $data = $fnc->get_db_array("SELECT links_url FROM links WHERE links_code = '" . $_GET["c"] . "'")[0];
-            // print_r($data);
         ?>
             <form action="?a=update" method="POST">
                 <div class="mb-3">
@@ -123,14 +110,35 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
                 <a href="?a=delete&c=<?= $_GET["c"] ?>" target="_top" class="btn btn-danger float-end">ลบ</a>
             </form>
         <?php
+        } else if (isset($_GET["a"]) && $_GET["a"] == "dupplicate" && isset($_GET["id"]) && $_SESSION["admin"]) {
+        ?>
+            <form action="?a=createnew" method="GET">
+                <div class="mb-3">
+                    <label for="url" class="form-label">ลิงก์ปลายทาง</label>
+                    <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required readonly value="<?= '' ?>">
+                    <div id="urlHelp" class="form-text">* ตัวอย่าง: https://arch.mju.ac.th</div>
+                </div>
+                <input type="hidden" name="fst" value="createnew">
+                <!-- <button type="submit" class="btn btn-primary">สร้างลิงก์</button> -->
+                <a href="" target="_top" class="btn btn-info">แสดงลิงก์</a>
+            </form>
+        <?php
+        } else if (isset($_GET["a"]) && $_GET["a"] == "delete" && isset($_GET["id"]) && $_SESSION["admin"]) {
+        ?>
+            <form action="?a=enable" method="POST">
+                <div class="mb-3">
+                    <label for="url" class="form-label">ลิงก์ปลายทาง</label>
+                    <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required readonly value="<?= '' ?>">
+                    <div id="urlHelp" class="form-text">* ตัวอย่าง: https://arch.mju.ac.th</div>
+                </div>
+                <input type="hidden" name="fst" value="enable">
+                <button type="submit" class="btn btn-primary">เปิดใช้งาน</button>
+                <a href="admin.php" target="_top" class="btn btn-warning">ยกเลิก</a>
+            </form>
+        <?php
         } else if ($_SESSION["admin"]) {
         ?>
             <form action="?a=createnew" method="POST">
-                <!-- <div class="mb-3">
-                <label for="title" class="form-label">Title/Name</label>
-                <input type="text" class="form-control" name="title" id="title" aria-describedby="titleHelp" required value="my-document">
-                <div id="titleHelp" class="form-text">* Title or Name of link</div>
-            </div> -->
                 <div class="mb-3">
                     <label for="url" class="form-label">ระบุลิงก์ปลายทาง</label>
                     <input type="url" class="form-control" name="url" id="url" aria-describedby="urlHelp" required value="">
@@ -149,13 +157,20 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         if (isset($_GET["a"]) && $_GET["a"] == "update" && $_POST["fst"] == "update" && $_POST["url"]) {
             $sql = "UPDATE links SET links_url='" . $_POST["url"] . "',links_time=CURRENT_TIMESTAMP WHERE links_code = '" . $_POST["code"] . "'";
             $fnc->sql_execute($sql);
-            // $fnc->fwrite_update($_POST["code"], "url", $_POST["url"]);
-
             echo '<meta http-equiv="refresh" content="0.1;url=admin.php">';
         }
 
         if (isset($_GET["a"]) && $_GET["a"] == "createnew" && $_POST["fst"] == "createnew") {
+            // * check duplicated link for this user
+            $sql = "SELECT links_id, links_code, links_status FROM links WHERE links_url = '" . $_POST["url"] . "' AND links_status = 'enbale'";
+            $exist = $fnc->get_db_array($sql)[0];
+            if (is_array($exist)) {
+                // dupplicated                
+                header("location:admin.php?a=view&c=" . $exist["links_code"] . "&id=" . $exist["links_id"]);
+                die();
+            }
 
+            // * gen code and insert to database
             $code = $fnc->gen_code();
             /*echo "action create new" . "<br>";            
             echo "gen code : " . $code . "<br>";
@@ -167,30 +182,8 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             $sql = "INSERT INTO links (links_code, links_title, links_url, links_user, links_user_id) VALUES ('" . $code . "', 'คณะสถาปัตย์ฯ', '" . $_POST["url"] . "', '" . $_SESSION["admin"]["fistNameEn"] . "', '" . $_SESSION["admin"]["citizenId"] . "')";
             $fnc->debug_console("insert sql: " . $sql);
             $fnc->sql_execute($sql);
-            /*$str_data = $fnc->fread_data();
-            if (!is_null($str_data)) {
-                $data_array = array();
-                // echo '<hr id=55>text file read data<br>' . $str_data . '<br>';
-                $data = json_decode($str_data, true, JSON_UNESCAPED_UNICODE);
-                // echo '<hr id=21>array data<br>';
-                // print_r($data);
-                // echo '<br>';
-                $data_array = array_merge(array($data_form), $data);
-                // echo '<hr id=21>array push<br>';
-                // print_r($data_array);
-                // echo '<br>';
-            } else {
-                // echo '<hr id=25>Text file is Nothing.<br>' . $str_data . '<br>';
-                $data_array = array($data_form);
-                // echo 'array Set<br>';
-                // print_r($data_array);
-                // echo '<br>';
-            }
 
-            $data = json_encode($data_array);
-            // echo "<br>json encode: " . $data;
-
-            $fnc->fwrite_data($data);*/
+            // * clear session and countdown 4 seconds to redirect
             $_SESSION["link_info"] = NULL;
             echo '<div id="countdown" class="text-info text-right float-end"></div>';
             echo '<script>
@@ -208,126 +201,44 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
             echo '<meta http-equiv="refresh" content="4;url=admin.php?a=fread">';
         }
 
-        /*if (isset($_GET["a"]) && $_GET["a"] == "fwrite" && isset($_GET["v"])) {
-            $str_data = $fnc->fread_data();
-            if (!is_null($str_data)) {
-                $data_array = array();
-                echo '<hr id=55>text file read data<br>' . $str_data . '<br>';
-                $data = json_decode($str_data, true, JSON_UNESCAPED_UNICODE);
-                echo '<hr id=21>array data<br>';
-                print_r($data);
-                echo '<br>';
-                $data_array = array_merge(array($_SESSION["link_info"]), $data);
-                echo '<hr id=21>array push<br>';
-                print_r($data_array);
-                echo '<br>';
-            } else {
-                echo '<hr id=25>Text file is Nothing.<br>' . $str_data . '<br>';
-                $data_array = array($_SESSION["link_info"]);
-                echo 'array Set<br>';
-                print_r($data_array);
-                echo '<br>';
-            }
 
-            $data = json_encode($data_array);
-            echo "<br>json encode: " . $data;
-
-            $fnc->fwrite_data($data);
-            $_SESSION["link_info"] = NULL;
-            echo '<meta http-equiv="refresh" content="2;url=admin.php?a=fread">';
-        }*/
-
-        /*if (isset($_GET["a"]) && $_GET["a"] == "new") {
-            // $_SESSION["link_info"] = NULL;
-            // $data_array = array("code" => $fnc->gen_code(), "title" => "Link1", "url" => "url 1 togo...", "user" => "umnarj", "time" => time(), "status" => "enable");
-            // echo 'link info Set<br>';
-            // print_r($data_array);
-            // echo '<br>';
-            // $_SESSION["link_info"] = $data_array;
-        }*/
-
-        // if (isset($_GET["a"]) && $_GET["a"] == "fread") {
-        // ! get data from data base
-        // $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
+        // * get data from database
         $sql = "SELECT links.* FROM links WHERE links.links_user_id = '" . $_SESSION["admin"]["citizenId"] . "' ORDER BY links_time Desc";
         $data = $fnc->get_db_array($sql);
         if ($_SESSION["admin"]["fistNameEn"] == "Umnarj") {
             $fnc->debug_console("my links... ", $data);
         }
         if (is_array($data)) {
-            // print_r($data);
             $i = 0;
             echo '<hr class="mt-4 float-none">';
             echo '<div class="mb-2 col-12 col-md-10 mx-auto">';
-            echo '<h4 class="mb-3">ลิงก์ของฉัน...</h4>';
+            echo '<h4 class="mb-3">ลิงก์ของ ' . $_SESSION["admin"]["fistNameEn"] . '</h4>';
             echo '<ol class="list-group list-group-numbered">';
             foreach ($data as $d) {
-                // echo $d["citizenId"] . ' == ' . $_SESSION["admin"]["citizenId"] . '<br>';                    
                 if ($d["links_status"] == "enable" && $d["links_user_id"] == $_SESSION["admin"]["citizenId"]) {
                     echo '<li class="list-group-item d-flex justify-content-between align-items-start">';
-                    // $i++;
-                    // echo $i . '. ';
                     echo '<span class="ms-2 me-auto"><a href="' . $d["links_url"] . '" target="_blank" class="link-primary">' . $fnc->url_hosting . $d["links_code"] . '</a></span>';
-                    // echo ' [by ' . $d["user"];
-                    // echo '<span class="float-end"><a href="?a=delete&c=' . $d["code"] . '" target="_top" class="btn btn-danger">DEL</a></span>';
                     echo '<span class="float-end"><a href="?a=edit&c=' . $d["links_code"] . '" target="_top" class="btn btn-warning me-2">แก้ไข</a></span>';
                     echo '<a href="?a=view&c=' . $d["links_code"] . '" class="btn btn-info btn_qr">QR</a>';
-                    // echo '<a href="?" data-link_code="' . $d["code"] . '" data-bs-toggle="modal" data-bs-target="#myModal" class="btn btn-info btn_qr">QR</a>';
-                    // echo '<span class="me-3 float-end" style="font-size: 0.8em;">[' . date("Y-m-d H:i:s น.", $d["time"]) . ']</span>';
                     echo '</li>';
                 } else {
-                    // echo '<a href="' . $d["url"] . '" target="_blank" class="link-primary">' . $d["code"] . ' -' . $d["title"] . '</a>';
-                    // echo ' by [' . $d["user"] . ' date:' . date("Y-m-d H:i:s น.", $d["time"]) . '] ';
-                    // echo ' <span class="text-danger">DELETED</span>';
-                    // echo '<br>';
                 }
             }
             echo '</ol>';
             echo '</div>';
-            // $_SESSION["link_info"] = $data;
             echo '<br>';
         } else {
             // echo "not data founded";
         }
-        // }
 
         if (isset($_GET["a"]) && $_GET["a"] == "delete" && isset($_GET["c"])) {
-            // $data_array = array();
-            // $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
-            // if (is_array($data)) {
-            //     foreach ($data as $d) {
-            //         if ($_GET["c"] == $d["code"]) {
-            //             $d["status"] = "delete";
-            //         } else {
-            //         }
-            //         array_push($data_array, $d);
-            //     }
-            // }
-            // // echo "data new : <br>";
-            // // print_r($data_array);
-            // $data = json_encode($data_array);
-            // // echo "<br>json encode: " . $data;
-
-            // $fnc->fwrite_data($data);
-            // $fnc->fwrite_update($_GET["c"], "status", "delete");
-            // $_SESSION["link_info"] = NULL;
-
             $sql = "UPDATE links SET links_status='delete',links_time=CURRENT_TIMESTAMP WHERE links_code = '" . $_GET["c"] . "'";
             $fnc->sql_execute($sql);
             echo '<meta http-equiv="refresh" content="0.1;url=admin.php">';
         }
 
-
         ?>
-        <!-- <hr class="mt-3 float-none">
-        <div class="row">
-            <a href="admin.php?a=new" target="_top" class="col m-2 btn btn-warning">Gen New</a>
-            <a href="admin.php?a=fwrite&v=link_info" target="_top" class="col m-2 btn btn-primary">File Write</a>
-            <a href="admin.php?a=fread" target="_top" class="col m-2 btn btn-info">My Links</a>
-        </div>
-        <div class="row">
-            <a href="signout.php" target="_top" class="col m-2 btn btn-secondary">Sign-Out</a>
-        </div> -->
+
     </div>
     <div class="float-none my-5"> </div>
 
@@ -345,26 +256,6 @@ x+	Creates a new file for read/write. Returns FALSE and an error if file already
         </div>
         <!-- Copyright -->
     </footer>
-
-
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="myModalLabel">QR Code</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=https://devbanban.com/" title="qr code" />
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous">
     </script>

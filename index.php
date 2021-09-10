@@ -4,10 +4,11 @@
 include("core.php");
 $fnc = new App_Object();
 ?>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAED's Shortern Link</title>
+    <title><?= $fnc->system_name; ?></title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link href="style.css" rel="stylesheet">
@@ -23,8 +24,8 @@ $fnc = new App_Object();
     <div class="container col-12 col-md-10 p-4">
         <div class="row mb-0">
             <div class="col">
-                <h1 class="text-success">FAED's Shortern Link <?= $fnc->system_version ?></h1>
-                <h3 class="text-mute">by Arch@Maejo </h3>
+                <h1 class="text-success"><?= $fnc->system_name . " " . $fnc->system_version ?></h1>
+                <h3 class="text-mute">by <?= $fnc->system_org; ?></h3>
             </div>
             <div class="col">
                 <a href="sign.php" target="_top" class="btn btn-lg btn-primary float-end mt-4">Sign-In</a>
@@ -32,25 +33,15 @@ $fnc = new App_Object();
         </div>
         <hr class="my-4">
         <?php
-        if (isset($_GET["l"])) {            
-
-            $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
-            if (is_array($data)) {
-                print_r($data);
-                foreach ($data as $d) {
-                    if ($_GET["l"] == $d["code"] && $d["status"] == "enable") {
-                        echo '<meta http-equiv="refresh" content="0;url=' . $d["url"] . '">';
-                        break;
-                    }
-                }
-                $_SESSION["link_info"] = $data;
+        if (isset($_GET["l"])) {
+            // $data = json_decode($fnc->fread_data(), true, JSON_UNESCAPED_UNICODE);
+            $link = $fnc->get_db_col("SELECT links_url FROM links WHERE links_status = 'enable' and links_code = '" . $_GET["l"] . "'")[0];
+            if ($link) {
+                echo '<meta http-equiv="refresh" content="0;url=' . $link . '">';
             } else {
-                echo '<div class="alert alert-danger h3">!! รหัสลิงก์ไม่ถูกต้อง1.</div>';
+                echo '<div class="alert alert-danger h3">!! รหัสลิงก์ไม่ถูกต้อง.</div>';
             }
-            echo '<div class="alert alert-danger h3">!! รหัสลิงก์ไม่ถูกต้อง.</div>';
         } else {
-            // echo '<meta http-equiv="refresh" content="0; URL=sign.php">';
-            // echo '<div class="alert alert-danger h3">!! ไม่พบรหัสลิงก์.</div>';
         ?>
             <div>
                 <h4 class="text-primary mt-5">ความสามารถของระบบนี้</h4>
@@ -72,7 +63,7 @@ $fnc = new App_Object();
             </div>
             <div>
                 <ol>
-                    <li>คลิก <a href="" target="_top">Sign-In</a> เพื่อลงชื่อเข้าสู่ระบบด้วยรหัสผ่านของ <strong>ERP.mju.ac.th</strong></li>
+                    <li>คลิก <a href="sign.php" target="_top"><strong>Sign-In</strong></a> เพื่อลงชื่อเข้าสู่ระบบด้วยรหัสผ่านของ <strong>ERP.mju.ac.th</strong></li>
                     <li>สร้าง แค่กำหนดลิงก์ปลายทาง แล้วกดปุ่ม สร้างลิงก์</li>
                     <li>แก้ไข ให้กดปุ่ม แก้ไข แล้วระบุลิงก์ปลายทางใหม่ แล้วกดปุ่ม บันทึก</li>
                     <li>ลบ ให้กดปุ่ม แก้ไข แล้วกดปุ่ม ลบ</li>

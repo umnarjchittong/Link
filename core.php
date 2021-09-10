@@ -10,6 +10,8 @@ class Constants
     public $data_filename = 'link_data.txt';
     public $google_analytic_id = 'G-62GTDQF33N';
     public $url_hosting = 'faed.mju.ac.th/dev/link/?l=';    
+    public $system_name = "FAED's Shortern Link";
+    public $system_org = "Arch@Maejo Unversity";
     public $system_version = '1.5';
 }
 
@@ -553,7 +555,7 @@ class files extends database
     // x+	Creates a new file for read/write. Returns FALSE and an error if file already exists
     // * End Description
 
-    public function fread_data($data_file = null)
+    /*public function fread_data($data_file = null)
     {
         die("din't use anymore");
         if (is_null($data_file)) {
@@ -639,7 +641,7 @@ class files extends database
             fwrite($file, $data);
             fclose($file);
         }
-    }
+    }*/
 
     public function get_link_stat($data_file = null) {
         $data = $this->get_db_array("select * from links");
@@ -650,12 +652,6 @@ class files extends database
             "users" => $this->get_db_col("SELECT count(DISTINCT(links_user_id)) as count_links FROM links WHERE links_status = 'enable'")
         );
         return $stat;
-    }
-
-    
-
-    public function chk_duplicate($sample_data)
-    {
     }
 
     public function gen_code()
