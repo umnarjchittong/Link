@@ -9,9 +9,9 @@ class Constants
 {
     public $data_filename = 'link_data.txt';
     public $google_analytic_id = 'G-62GTDQF33N';
-    public $url_hosting = 'faed.mju.ac.th/dev/link/?l=';    
+    public $url_hosting = 'faed.mju.ac.th/dev/link/?l=';
     public $system_name = "FAED's Shortern Link";
-    public $system_org = "Arch@Maejo Unversity";
+    public $system_org = "Arch@Maejo University";
     public $system_version = '1.5';
 }
 
@@ -50,6 +50,16 @@ class CommonFnc extends Constants
         } else {
             echo '<script>console.log("' . $val1 . '");</script>';
         }
+    }
+
+    public function get_client_info()
+    {
+        $data = array();
+        foreach ($_SERVER as $key => $value) {
+            // $data .= '$_SERVER["' . $key . '"] = ' . $value . '<br />';
+            array_push($data, '$_SERVER["' . $key . '"] = ' . $value);
+        }
+        return $data;
     }
 
     public function get_page_info($parameter = null)
@@ -98,25 +108,26 @@ class CommonFnc extends Constants
                 'ORIG_PATH_INFO',
             ];
 
-            echo '<table cellpadding="10">';
+            // $data = '<table cellpadding="10">';
             $val = "page info : \\n";
             foreach ($indicesServer as $arg) {
                 if (isset($_SERVER[$arg])) {
-                    echo '<tr><td>' .
-                        $arg .
-                        '</td><td>' .
-                        $_SERVER[$arg] .
-                        '</td></tr>';
+                    // $data .= '<tr><td>' .
+                    //     $arg .
+                    //     '</td><td>' .
+                    //     $_SERVER[$arg] .
+                    //     '</td></tr>';
                     // $this->debug_console($arg . " = " . $_SERVER[$arg]);
                     $val .= $arg . ' = ' . $_SERVER[$arg] . "\\n";
                 } else {
-                    echo '<tr><td>' . $arg . '</td><td>-</td></tr>';
+                    // $data .= '<tr><td>' . $arg . '</td><td>-</td></tr>';
                     // $this->debug_console($arg . " = -");
                     $val .= $arg . ' = -' . "\\n";
                 }
             }
-            echo '</table>';
+            // $data .= '</table>';            
             $this->debug_console($val);
+            return $val;
         } else {
             switch ($parameter) {
                 case 'thisfilename':
@@ -213,7 +224,7 @@ class CommonFnc extends Constants
         // echo '<div class="app-wrapper">';
         echo '<div class="container col-12 mt-3">';
         // echo '<div class="app-card alert alert-dismissible shadow-sm mb-4 border-left-decoration" role="alert">';
-        echo '<div class="alert alert-' . $alert_style .' alert-dismissible fade show" role="alert">';
+        echo '<div class="alert alert-' . $alert_style . ' alert-dismissible fade show" role="alert">';
         echo '<div class="inner">';
         echo '<div class="app-card-body p-3 p-lg-4">';
         echo '<h3 class="mb-3 text-' .
@@ -384,7 +395,7 @@ class database extends CommonFnc
 
     public function get_board_info($col_name = "board_short", $val)
     {
-        if ($val) {            
+        if ($val) {
             if ($col_name == "board_id") {
                 $col_name = $col_name . " = " . $val;
             } else {
@@ -643,7 +654,8 @@ class files extends database
         }
     }*/
 
-    public function get_link_stat($data_file = null) {
+    public function get_link_stat($data_file = null)
+    {
         $data = $this->get_db_array("select * from links");
         $stat = array(
             "all" => $this->get_db_col("SELECT count(links_id) as count_links FROM links"),

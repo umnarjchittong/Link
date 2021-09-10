@@ -76,7 +76,7 @@ if (!$_SESSION["admin"]) {
                             <button type="button" class="btn-close float-end pb-1  link-warning" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         <div class="card-body text-center">
-                            <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=<?= $fnc->url_hosting . $_GET["c"] ?>" title="qr code generator" class="mx-auto" />
+                            <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=<?= 'https://' . $fnc->url_hosting . $_GET["c"] ?>" title="qr code generator" class="mx-auto" />
                         </div>
                         <div class="card-footer text-end" style="font-size: 0.8em; font-weight:300;">
                             * คลิกขวาเซฟเป็นรูปภาพได้เลยครับ
@@ -217,7 +217,13 @@ if (!$_SESSION["admin"]) {
             foreach ($data as $d) {
                 if ($d["links_status"] == "enable" && $d["links_user_id"] == $_SESSION["admin"]["citizenId"]) {
                     echo '<li class="list-group-item d-flex justify-content-between align-items-start">';
-                    echo '<span class="ms-2 me-auto"><a href="' . $d["links_url"] . '" target="_blank" class="link-primary">' . $fnc->url_hosting . $d["links_code"] . '</a></span>';
+                    echo '<span class="ms-2 me-auto"><a href="' . $d["links_url"] . '" target="_blank" class="link-primary">' . $fnc->url_hosting . $d["links_code"] . '</a>';
+                    // * if count > 0 show badge
+                    $visited = $fnc->get_db_col("SELECT COUNT(logs_id) as count_logs FROM logs WHERE links_code = '" . $d["links_code"] . "'");
+                    if ($visited > 0) {
+                        echo '<span class="badge rounded-pill bg-primary ms-1" style="font-weight:300;">ถูกใช้งาน <strong>' . $visited . '</strong> ครั้ง</span>';
+                    }
+                    echo '</span>';
                     echo '<span class="float-end"><a href="?a=edit&c=' . $d["links_code"] . '" target="_top" class="btn btn-warning me-2">แก้ไข</a></span>';
                     echo '<a href="?a=view&c=' . $d["links_code"] . '" class="btn btn-info btn_qr">QR</a>';
                     echo '</li>';
