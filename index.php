@@ -111,7 +111,7 @@ $fnc = new App_Object();
     </script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9JD24N62B8"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?= $fnc->google_analytic_id ?>"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
 
@@ -120,7 +120,7 @@ $fnc = new App_Object();
         }
         gtag('js', new Date());
 
-        gtag('config', 'G-9JD24N62B8');
+        gtag('config', '<?= $fnc->google_analytic_id ?>');
     </script>
 
     <script type="text/javascript">

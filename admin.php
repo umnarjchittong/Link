@@ -29,7 +29,7 @@ if (!$_SESSION["admin"]) {
     }
     ?>
     <div class="container-fluid alert alert-warning text-center mb-3" style="font-size: 0.9rem; font-weight:500">
-        เวอร์ชั่น <?= $fnc->system_version; ?> (เป็นเวอร์ชันที่อยู่ในระหว่างการพัฒนา สามารถแนะนำเพิ่มเติมได้เลยครับ)
+        เวอร์ชั่น <?= $fnc->system_version . ' ' . $fnc->system_version_notes; ?>
     </div>
 
     <div class="container col-12 col-md-12 col-lg-8 mt-3">
@@ -162,7 +162,7 @@ if (!$_SESSION["admin"]) {
 
         if (isset($_GET["a"]) && $_GET["a"] == "createnew" && $_POST["fst"] == "createnew") {
             // * check duplicated link for this user
-            $sql = "SELECT links_id, links_code, links_status FROM links WHERE links_url = '" . $_POST["url"] . "' AND links_status = 'enbale'";
+            $sql = "SELECT links_id, links_code, links_status FROM links WHERE links_url = '" . $_POST["url"] . "' AND links_status = 'enable'";
             $exist = $fnc->get_db_array($sql)[0];
             if (is_array($exist)) {
                 // dupplicated                
