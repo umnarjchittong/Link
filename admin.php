@@ -76,10 +76,30 @@ if (!$_SESSION["admin"]) {
                             <button type="button" class="btn-close float-end pb-1  link-warning" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         <div class="card-body text-center">
-                            <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=<?= 'https://' . $fnc->url_hosting . $_GET["c"] ?>" title="qr code generator" class="mx-auto" />
+                            <?php
+                            if (isset($_GET["s"]) && $_GET["s"] > $fnc->system_qr_size) {
+                                $qr_size = $_GET["s"];
+                            } else {
+                                $qr_size = $fnc->system_qr_size;
+                            }
+                            // $qr_size = 540;
+                            ?>
+                            <img src="https://chart.googleapis.com/chart?chs=<?= $qr_size . 'x' . $qr_size; ?>&cht=qr&choe=UTF-8&chl=<?= 'https://' . $fnc->url_hosting . $_GET["c"] ?>" title="qr code generator" class="mx-auto" />
                         </div>
                         <div class="card-footer text-end" style="font-size: 0.8em; font-weight:300;">
-                            * คลิกขวาเซฟเป็นรูปภาพได้เลยครับ
+                            <div>* คลิกขวาเซฟเป็นรูปภาพได้เลยครับ</div>
+                            <div class="col-6 col-md-3 float-end">
+                                <form action="admin.php" method="get">
+                                    <input type="hidden" name="a" value="<?= $_GET["a"]; ?>">
+                                    <input type="hidden" name="c" value="<?= $_GET["c"]; ?>">
+                                    <select name="s" class="form-select form-select-sm" onchange="form.submit();">
+                                        <option selected>ขนาดอืนๆ</option>
+                                        <option value="150">150 px</option>
+                                        <option value="300">300 px</option>
+                                        <option value="500">500 px</option>                                        
+                                    </select>
+                                </form>
+                            </div>
                         </div>
                         <?php
                         if ($_SESSION["admin"]["fistNameEn"] == "Umnarj") {
@@ -179,7 +199,7 @@ if (!$_SESSION["admin"]) {
             print_r($data_form);
             echo "your link : " . $fnc->url_hosting . $code . "<br>";*/
 
-            $sql = "INSERT INTO links (links_code, links_title, links_url, links_user, links_user_id) VALUES ('" . $code . "', 'คณะสถาปัตย์ฯ', '" . $_POST["url"] . "', '" . $_SESSION["admin"]["fistNameEn"] . "', '" . $_SESSION["admin"]["citizenId"] . "')";
+            $sql = "INSERT INTO links (links_code, links_title, links_url, links_user, links_user_id) VALUES ('" . $code . "', '" . substr($_SESSION["admin"]["faculty"], 0, 80) . "', '" . $_POST["url"] . "', '" . $_SESSION["admin"]["fistNameEn"] . "', '" . $_SESSION["admin"]["citizenId"] . "')";
             $fnc->debug_console("insert sql: " . $sql);
             $fnc->sql_execute($sql);
 

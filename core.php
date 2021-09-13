@@ -13,8 +13,9 @@ class Constants
     public $url_hosting = 'faed.mju.ac.th/link/?l=';
     public $system_name = "FAED's Shortern Link";
     public $system_org = "Arch@Maejo University";
-    public $system_version = '1.5';
+    public $system_version = '1.52';
     public $system_version_notes = '(เป็นเวอร์ชันที่เปิดใช้งานได้อย่างสมบูรณ์ ยังสามารถแนะนำเพิ่มเติมได้ครับ)';
+    public $system_qr_size = 150;
 }
 
 class CommonFnc extends Constants

@@ -65,6 +65,7 @@ if (empty($_REQUEST["T"])) {
             "adminPositionType" => $api_array["adminPositionType"],
             "e_mail" => $api_array["e_mail"],
             "personnelPhoto" => $api_array["personnelPhoto"],
+            "faculty" => $api_array["faculty"],
             "auth_lv" => $auth_lv
         );
         
