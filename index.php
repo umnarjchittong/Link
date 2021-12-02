@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
+// die("HELLO");
 include("core.php");
 $fnc = new App_Object();
 
@@ -20,7 +21,10 @@ if (isset($_GET["l"])) {
     } else {
         echo '<div class="alert alert-danger h3">!! รหัสลิงก์ไม่ถูกต้อง.</div>';
     }
+} else {
+    echo '<meta http-equiv="refresh" content="0.1;url=home/">';
 }
+die();
 
 ?>
 
@@ -114,7 +118,7 @@ if (isset($_GET["l"])) {
 
         <!-- Copyright -->
         <div class="text-center">
-            © 2021 Copyright Faculty of Architecture and Environmental Design, Maejo University<br>
+            © 2021 Copyright Maejo University<br>
         </div>
         <div class="text-center" style="font-weight:300;">
             Deverloper : umnarj@mju.ac.th

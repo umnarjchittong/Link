@@ -10,9 +10,9 @@ class Constants
     public $data_filename = 'link_data.txt';
     public $google_analytic_id = 'G-N2WYE7JZ0X'; // release
     // public $google_analytic_id = 'G-9JD24N62B8'; // dev mode
-    public $url_hosting = 'faed.mju.ac.th/link/?l=';
-    public $system_name = "FAED's Shortern Link";
-    public $system_org = "Arch@Maejo University";
+    public $url_hosting = 'maejo.link/?l=';
+    public $system_name = "MJU Short URL";
+    public $system_org = "Maejo University";
     public $system_version = '1.52';
     public $system_version_notes = '(เป็นเวอร์ชันที่เปิดใช้งานได้อย่างสมบูรณ์ ยังสามารถแนะนำเพิ่มเติมได้ครับ)';
     public $system_qr_size = 150;

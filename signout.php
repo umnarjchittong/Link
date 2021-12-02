@@ -6,6 +6,6 @@ session_unset();
 // destroy the session
 session_destroy();
 
-header("location:sign.php");
+header("location:home/");
 
 ?>
