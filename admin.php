@@ -8,7 +8,7 @@ $fnc = new App_Object();
 if (!$_SESSION["admin"]) {
     header("location:signout.php");
 }
-
+// newserver
 ?>
 
 
