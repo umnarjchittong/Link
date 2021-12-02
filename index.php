@@ -4,6 +4,24 @@
 include("core.php");
 $fnc = new App_Object();
 
+if (isset($_GET["l"])) {
+    $link = $fnc->get_db_array("SELECT links_id, links_code, links_url FROM links WHERE links_status = 'enable' and links_code = '" . $_GET["l"] . "'")[0];
+    if ($link) {
+        // $fnc->debug_console("link: " , $link);
+        // if (isset($_GET["p"]) && $_GET["p"] == "admin") {
+        // $fnc->get_page_info();
+        // $fnc->debug_console("client info : " , $fnc->get_client_info());
+        // * save link active into logs
+        $sql = "INSERT INTO logs (links_id, links_code) VALUES (" . $link["links_id"] . ", '" . $link["links_code"] . "');";
+        $fnc->sql_execute($sql);
+        // }
+        echo '<meta http-equiv="refresh" content="0.1;url=' . $link["links_url"] . '">';
+        die();
+    } else {
+        echo '<div class="alert alert-danger h3">!! รหัสลิงก์ไม่ถูกต้อง.</div>';
+    }
+}
+
 ?>
 
 <head>
@@ -34,18 +52,18 @@ $fnc = new App_Object();
         </div>
         <hr class="my-4">
         <?php
-        
-        
+
+
         if (isset($_GET["l"])) {
             $link = $fnc->get_db_array("SELECT links_id, links_code, links_url FROM links WHERE links_status = 'enable' and links_code = '" . $_GET["l"] . "'")[0];
             if ($link) {
                 // $fnc->debug_console("link: " , $link);
                 // if (isset($_GET["p"]) && $_GET["p"] == "admin") {
-                    // $fnc->get_page_info();
-                    // $fnc->debug_console("client info : " , $fnc->get_client_info());
-                    // * save link active into logs
-                    $sql = "INSERT INTO logs (links_id, links_code) VALUES (" . $link["links_id"] . ", '" . $link["links_code"] . "');";
-                    $fnc->sql_execute($sql);
+                // $fnc->get_page_info();
+                // $fnc->debug_console("client info : " , $fnc->get_client_info());
+                // * save link active into logs
+                $sql = "INSERT INTO logs (links_id, links_code) VALUES (" . $link["links_id"] . ", '" . $link["links_code"] . "');";
+                $fnc->sql_execute($sql);
                 // }
                 echo '<meta http-equiv="refresh" content="0.1;url=' . $link["links_url"] . '">';
             } else {
@@ -82,13 +100,13 @@ $fnc = new App_Object();
                     <li>มีข้อสอบถาม หรือคำแนะนำ กดปุ่ม สอบถาม-แนะนำ ได้ครับ</li>
                 </ol>
             </div>
-<br><br>
+            <br><br>
         <?php
         }
         ?>
 
     </div>
-<br><br>
+    <br><br>
     <footer class="text-center text-white fixed-bottom py-1" style="background-color: #5e2809; font-size: 0.8rem;">
         <!-- Grid container -->
         <div class="container m-2"></div>

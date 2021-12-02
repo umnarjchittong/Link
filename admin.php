@@ -53,7 +53,9 @@ if (!$_SESSION["admin"]) {
 
         <?php
         if (isset($_GET["a"]) && $_GET["a"] == "view" && isset($_GET["c"])) {
-            $data = $fnc->get_db_col("SELECT links_url FROM links WHERE links_code = '" . $_GET["c"] . "'");
+            $sql = "SELECT links_url FROM links WHERE links_code = '" . $_GET["c"] . "' AND links_user = '" . $_SESSION["admin"]["fistNameEn"] . "' AND links_status = 'enable'";
+            $fnc->debug_console("SQL57: " . $sql);
+            $data = $fnc->get_db_col($sql);
         ?>
             <div class="container col-12 col-md-10 mx-auto mt-5">
                 <div class="alert alert alert-dismissible fade show p-0" role="alert">
@@ -182,7 +184,8 @@ if (!$_SESSION["admin"]) {
 
         if (isset($_GET["a"]) && $_GET["a"] == "createnew" && $_POST["fst"] == "createnew") {
             // * check duplicated link for this user
-            $sql = "SELECT links_id, links_code, links_status FROM links WHERE links_url = '" . $_POST["url"] . "' AND links_status = 'enable'";
+            // $sql = "SELECT links_id, links_code, links_status FROM links WHERE links_url = '" . $_POST["url"] . "' AND links_status = 'enable'";
+            $sql = "SELECT links_id, links_code, links_status FROM links WHERE links_url = '" . $_GET["url"] . "' AND links_user = '" . $_SESSION["admin"]["fistNameEn"] . "' AND links_status = 'enable'";
             $exist = $fnc->get_db_array($sql)[0];
             if (is_array($exist)) {
                 // dupplicated                
@@ -238,6 +241,7 @@ if (!$_SESSION["admin"]) {
                 if ($d["links_status"] == "enable" && $d["links_user_id"] == $_SESSION["admin"]["citizenId"]) {
                     echo '<li class="list-group-item d-flex justify-content-between align-items-start">';
                     echo '<span class="ms-2 me-auto"><a href="' . $d["links_url"] . '" target="_blank" class="link-primary">' . $fnc->url_hosting . $d["links_code"] . '</a>';
+                    echo '<br>' . $d["links_url"];
                     // * if count > 0 show badge
                     $visited = $fnc->get_db_col("SELECT COUNT(logs_id) as count_logs FROM logs WHERE links_code = '" . $d["links_code"] . "'");
                     if ($visited > 0) {
